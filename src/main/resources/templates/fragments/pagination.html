@@ -12,20 +12,20 @@
   <span>Pages:</span>
   <span>[</span>
   <span th:each="i: ${#numbers.sequence(1, totalPages)}">
-      <span th:replace="~{::item('/vets.html', ${i}, ${currentPage != i})}" />
+      <span th:replace="~{::item(${url}, ${i}, ${currentPage != i})}" />
     </span>
   <span>]&nbsp;</span>
   <span>
-      <span th:replace="~{::control('/vets.html', 1, ${currentPage > 1}, 'First', 'fa fa-fast-backward')}" />
+      <span th:replace="~{::control(${url}, 1, ${currentPage > 1}, 'First', 'fa fa-fast-backward')}" />
     </span>
   <span>
-      <span th:replace="~{::control('/vets.html', ${currentPage - 1}, ${currentPage > 1}, 'Previous', 'fa fa-step-backward')}" />
+      <span th:replace="~{::control(${url}, ${currentPage - 1}, ${currentPage > 1}, 'Previous', 'fa fa-step-backward')}" />
     </span>
   <span>
-      <span th:replace="~{::control('/vets.html', ${currentPage + 1}, ${currentPage < totalPages}, 'Next', 'fa fa-step-forward')}" />
+      <span th:replace="~{::control(${url}, ${currentPage + 1}, ${currentPage < totalPages}, 'Next', 'fa fa-step-forward')}" />
     </span>
   <span>
-      <span th:replace="~{::control('/vets.html', ${totalPages}, ${currentPage < totalPages}, 'Next', 'fa fa-fast-forward')}" />
+      <span th:replace="~{::control(${url}, ${totalPages}, ${currentPage < totalPages}, 'Next', 'fa fa-fast-forward')}" />
     </span>
 </div>
 </div>
