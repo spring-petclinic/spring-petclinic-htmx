@@ -5,6 +5,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+/**
+ * Controller advice that returns a special fragment in case the request was coming from
+ * HTMX.
+ *
+ * @author Alexandre Grison
+ */
 @ControllerAdvice
 public class CrashControllerAdvice {
 

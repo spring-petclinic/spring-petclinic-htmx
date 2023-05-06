@@ -43,6 +43,7 @@ import jakarta.validation.Valid;
  * @author Ken Krebs
  * @author Arjen Poutsma
  * @author Michael Isvy
+ * @author Alexandre Grison
  */
 @Controller
 class OwnerController {

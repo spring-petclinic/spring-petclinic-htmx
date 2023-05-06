@@ -2,6 +2,9 @@ package org.springframework.samples.petclinic.htmx;
 
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
+/**
+ * @author Alexandre Grison
+ */
 public class HtmxTestUtils {
 
 	private HtmxTestUtils() {

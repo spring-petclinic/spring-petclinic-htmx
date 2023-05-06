@@ -33,6 +33,7 @@ import jakarta.validation.Valid;
  * @author Arjen Poutsma
  * @author Michael Isvy
  * @author Dave Syer
+ * @author Alexandre Grison
  */
 @Controller
 class VisitController {

@@ -35,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Test class for {@link VisitController}
  *
  * @author Colin But
+ * @author Alexandre Grison
  */
 @WebMvcTest(VisitController.class)
 class VisitControllerTests {

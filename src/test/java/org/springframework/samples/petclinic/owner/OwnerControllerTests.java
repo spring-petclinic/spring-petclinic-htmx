@@ -50,6 +50,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Test class for {@link OwnerController}
  *
  * @author Colin But
+ * @author Alexandre Grison
  */
 @WebMvcTest(OwnerController.class)
 class OwnerControllerTests {

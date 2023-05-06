@@ -32,6 +32,7 @@ import java.util.Collection;
  * @author Juergen Hoeller
  * @author Ken Krebs
  * @author Arjen Poutsma
+ * @author Alexandre Grison
  */
 @Controller
 @RequestMapping("/owners/{ownerId}")
