@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.github.wimdeblauwe.hsbt.mvc.HxRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -177,9 +178,20 @@ class OwnerController {
 
 	@PostMapping("/owners/{ownerId}/edit")
 	public String processUpdateOwnerForm(@Valid Owner owner, BindingResult result,
-			@PathVariable("ownerId") int ownerId) {
+										 @PathVariable("ownerId") int ownerId) {
+		return handleProcessUpdateOwnerForm(owner, result, ownerId, VIEWS_OWNER_CREATE_OR_UPDATE_FORM);
+	}
+
+	@HxRequest
+	@PostMapping("/owners/{ownerId}/edit")
+	public String htmxProcessUpdateOwnerForm(@Valid Owner owner, BindingResult result,
+										 @PathVariable("ownerId") int ownerId) {
+		return handleProcessUpdateOwnerForm(owner, result, ownerId, "fragments/owners :: edit");
+	}
+
+	protected String handleProcessUpdateOwnerForm(Owner owner, BindingResult result, int ownerId, String view) {
 		if (result.hasErrors()) {
-			return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
+			return view;
 		}
 
 		owner.setId(ownerId);
