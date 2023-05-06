@@ -149,9 +149,20 @@ class OwnerController {
 
 	@GetMapping("/owners/{ownerId}/edit")
 	public String initUpdateOwnerForm(@PathVariable("ownerId") int ownerId, Model model) {
+		return prepareInitUpdateOwnerForm(ownerId, model, VIEWS_OWNER_CREATE_OR_UPDATE_FORM);
+	}
+
+	@HxRequest
+	@GetMapping("/owners/{ownerId}/edit")
+	public String htmxInitUpdateOwnerForm(@PathVariable("ownerId") int ownerId, Model model, HttpServletResponse response) {
+		response.addHeader("HX-Push-Url", "/owners/" + ownerId + "/edit");
+		return prepareInitUpdateOwnerForm(ownerId, model, "fragments/owners :: edit");
+	}
+
+	protected String prepareInitUpdateOwnerForm(int ownerId, Model model, String view) {
 		Owner owner = this.owners.findById(ownerId);
 		model.addAttribute(owner);
-		return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
+		return view;
 	}
 
 	@PostMapping("/owners/{ownerId}/edit")

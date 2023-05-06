@@ -1,0 +1,31 @@
+<span th:fragment="item(url,page,condition)" th:tag="remove">
+  <a th:if="${condition}" th:attr="hx-get=@{${url} + '?page=' + ${page}}" th:href="@{'/owners?page=' + ${page}}" hx:target="${'#block-content'}">[[${page}]]</a>
+  <span th:unless="${condition}">[[${page}]]</span>
+</span>
+
+<span th:fragment="control(url, page,condition,title,class)" th:tag="remove">
+  <a th:if="${condition}" th:attr="hx-get=@{${url} + '?page=' + ${page}}" th:href="@{'/owners?page=' + ${page}}" hx:target="${'#block-content'}" th:title="${title}" th:class="${class}"></a>
+  <span th:unless="${condition}" th:title="${title}" th:class="${class}"></span>
+</span>
+
+<div th:fragment="component(url, totalPages, currentPage)" th:tag="remove">
+  <span>Pages:</span>
+  <span>[</span>
+  <span th:each="i: ${#numbers.sequence(1, totalPages)}">
+      <span th:replace="~{::item('/vets.html', ${i}, ${currentPage != i})}" />
+    </span>
+  <span>]&nbsp;</span>
+  <span>
+      <span th:replace="~{::control('/vets.html', 1, ${currentPage > 1}, 'First', 'fa fa-fast-backward')}" />
+    </span>
+  <span>
+      <span th:replace="~{::control('/vets.html', ${currentPage - 1}, ${currentPage > 1}, 'Previous', 'fa fa-step-backward')}" />
+    </span>
+  <span>
+      <span th:replace="~{::control('/vets.html', ${currentPage + 1}, ${currentPage < totalPages}, 'Next', 'fa fa-step-forward')}" />
+    </span>
+  <span>
+      <span th:replace="~{::control('/vets.html', ${totalPages}, ${currentPage < totalPages}, 'Next', 'fa fa-fast-forward')}" />
+    </span>
+</div>
+</div>
