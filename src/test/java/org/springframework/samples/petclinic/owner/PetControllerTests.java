@@ -67,10 +67,7 @@ class PetControllerTests {
 		given(this.owners.findById(TEST_OWNER_ID)).willReturn(owner);
 	}
 
-	@CsvSource({
-		"false,pets/createOrUpdatePetForm",
-		"true,fragments/pets :: edit"
-	})
+	@CsvSource({ "false,pets/createOrUpdatePetForm", "true,fragments/pets :: edit" })
 	@ParameterizedTest
 	void testInitCreationForm(boolean hxRequest, String expectedView) throws Exception {
 		mockMvc.perform(toggleHtmx(get("/owners/{ownerId}/pets/new", TEST_OWNER_ID), hxRequest))
@@ -79,27 +76,22 @@ class PetControllerTests {
 			.andExpect(model().attributeExists("pet"));
 	}
 
-	@ValueSource(booleans = {false, true})
+	@ValueSource(booleans = { false, true })
 	@ParameterizedTest
 	void testProcessCreationFormSuccess(boolean hxRequest) throws Exception {
 		mockMvc
-			.perform(toggleHtmx(post("/owners/{ownerId}/pets/new", TEST_OWNER_ID), hxRequest)
-				.param("name", "Betty")
+			.perform(toggleHtmx(post("/owners/{ownerId}/pets/new", TEST_OWNER_ID), hxRequest).param("name", "Betty")
 				.param("type", "hamster")
 				.param("birthDate", "2015-02-12"))
 			.andExpect(status().is3xxRedirection())
 			.andExpect(view().name("redirect:/owners/{ownerId}"));
 	}
 
-	@CsvSource({
-		"false,pets/createOrUpdatePetForm",
-		"true,fragments/pets :: edit"
-	})
+	@CsvSource({ "false,pets/createOrUpdatePetForm", "true,fragments/pets :: edit" })
 	@ParameterizedTest
 	void testProcessCreationFormHasErrors(boolean hxRequest, String expectedView) throws Exception {
 		mockMvc
-			.perform(toggleHtmx(post("/owners/{ownerId}/pets/new", TEST_OWNER_ID), hxRequest)
-				.param("name", "Betty")
+			.perform(toggleHtmx(post("/owners/{ownerId}/pets/new", TEST_OWNER_ID), hxRequest).param("name", "Betty")
 				.param("birthDate", "2015-02-12"))
 			.andExpect(model().attributeHasNoErrors("owner"))
 			.andExpect(model().attributeHasErrors("pet"))
@@ -109,10 +101,7 @@ class PetControllerTests {
 			.andExpect(view().name(expectedView));
 	}
 
-	@CsvSource({
-		"false,pets/createOrUpdatePetForm",
-		"true,fragments/pets :: edit"
-	})
+	@CsvSource({ "false,pets/createOrUpdatePetForm", "true,fragments/pets :: edit" })
 	@ParameterizedTest
 	void testInitUpdateForm(boolean hxRequest, String expectedView) throws Exception {
 		mockMvc.perform(toggleHtmx(get("/owners/{ownerId}/pets/{petId}/edit", TEST_OWNER_ID, TEST_PET_ID), hxRequest))
@@ -121,7 +110,7 @@ class PetControllerTests {
 			.andExpect(view().name(expectedView));
 	}
 
-	@ValueSource(booleans = {false, true})
+	@ValueSource(booleans = { false, true })
 	@ParameterizedTest
 	void testProcessUpdateFormSuccess(boolean hxRequest) throws Exception {
 		mockMvc
@@ -133,10 +122,7 @@ class PetControllerTests {
 			.andExpect(view().name("redirect:/owners/{ownerId}"));
 	}
 
-	@CsvSource({
-		"false,pets/createOrUpdatePetForm",
-		"true,fragments/pets :: edit"
-	})
+	@CsvSource({ "false,pets/createOrUpdatePetForm", "true,fragments/pets :: edit" })
 	@ParameterizedTest
 	void testProcessUpdateFormHasErrors(boolean hxRequest, String expectedView) throws Exception {
 		mockMvc

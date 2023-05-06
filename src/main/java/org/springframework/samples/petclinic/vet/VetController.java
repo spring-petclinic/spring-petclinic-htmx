@@ -50,7 +50,8 @@ class VetController {
 
 	@HxRequest
 	@GetMapping("/vets.html")
-	public String htmxShowVetList(@RequestParam(defaultValue = "1") int page, Model model, HttpServletResponse response) {
+	public String htmxShowVetList(@RequestParam(defaultValue = "1") int page, Model model,
+			HttpServletResponse response) {
 		return handleVetList(page, model, "fragments/vets :: list", response);
 	}
 
@@ -63,7 +64,8 @@ class VetController {
 		return addPaginationModel(page, paginated, model, view, response);
 	}
 
-	private String addPaginationModel(int page, Page<Vet> paginated, Model model, String view, HttpServletResponse response) {
+	private String addPaginationModel(int page, Page<Vet> paginated, Model model, String view,
+			HttpServletResponse response) {
 		List<Vet> listVets = paginated.getContent();
 		model.addAttribute("currentPage", page);
 		model.addAttribute("totalPages", paginated.getTotalPages());

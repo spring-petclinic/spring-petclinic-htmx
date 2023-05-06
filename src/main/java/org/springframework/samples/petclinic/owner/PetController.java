@@ -57,7 +57,7 @@ class PetController {
 
 	@ModelAttribute("pet")
 	public Pet findPet(@PathVariable("ownerId") int ownerId,
-					   @PathVariable(name = "petId", required = false) Integer petId) {
+			@PathVariable(name = "petId", required = false) Integer petId) {
 		return petId == null ? new Pet() : this.owners.findById(ownerId).getPet(petId);
 	}
 
@@ -78,7 +78,8 @@ class PetController {
 
 	@HxRequest
 	@GetMapping("/pets/new")
-	public String htmxInitCreationForm(Owner owner, ModelMap model, HttpServletRequest request, HttpServletResponse response) {
+	public String htmxInitCreationForm(Owner owner, ModelMap model, HttpServletRequest request,
+			HttpServletResponse response) {
 		response.addHeader("HX-Push-Url", request.getServletPath());
 		return handleInitCreationForm(owner, model, "fragments/pets :: edit");
 	}
@@ -101,7 +102,8 @@ class PetController {
 		return handleProcessCreationForm(owner, pet, result, model, "fragments/pets :: edit");
 	}
 
-	protected String handleProcessCreationForm(Owner owner, @Valid Pet pet, BindingResult result, ModelMap model, String view) {
+	protected String handleProcessCreationForm(Owner owner, @Valid Pet pet, BindingResult result, ModelMap model,
+			String view) {
 		if (StringUtils.hasLength(pet.getName()) && pet.isNew() && owner.getPet(pet.getName(), true) != null) {
 			result.rejectValue("name", "duplicate", "already exists");
 		}
@@ -123,7 +125,8 @@ class PetController {
 
 	@HxRequest
 	@GetMapping("/pets/{petId}/edit")
-	public String htmxInitUpdateForm(@PathVariable("ownerId") int ownerId, Owner owner, @PathVariable("petId") int petId, ModelMap model, HttpServletResponse response) {
+	public String htmxInitUpdateForm(@PathVariable("ownerId") int ownerId, Owner owner,
+			@PathVariable("petId") int petId, ModelMap model, HttpServletResponse response) {
 		response.addHeader("HX-Push-Url", "/owners/" + ownerId + "/pets/" + petId + "/edit");
 		return handleInitUpdateForm(owner, petId, model, "fragments/pets :: edit");
 	}
@@ -146,7 +149,8 @@ class PetController {
 		return handleProcessUpdateForm(pet, result, owner, model, "fragments/pets :: edit");
 	}
 
-	protected String handleProcessUpdateForm(@Valid Pet pet, BindingResult result, Owner owner, ModelMap model, String view) {
+	protected String handleProcessUpdateForm(@Valid Pet pet, BindingResult result, Owner owner, ModelMap model,
+			String view) {
 		if (result.hasErrors()) {
 			model.put("pet", pet);
 			return view;

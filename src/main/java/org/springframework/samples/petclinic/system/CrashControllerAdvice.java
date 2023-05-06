@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
 public class CrashControllerAdvice {
+
 	private final HttpServletRequest httpServletRequest;
 
 	public CrashControllerAdvice(HttpServletRequest httpServletRequest) {
@@ -16,11 +17,13 @@ public class CrashControllerAdvice {
 	@ExceptionHandler(Exception.class)
 	public String globalError(Exception exception, Model model) throws Exception {
 		if (Boolean.parseBoolean(httpServletRequest.getHeader("HX-Request"))) {
-			model.addAttribute("message", "Expected: controller used to showcase what " + "happens when an exception is thrown");
+			model.addAttribute("message",
+					"Expected: controller used to showcase what " + "happens when an exception is thrown");
 			return "fragments/errors :: general";
 		}
 
 		// let thymeleaf handle it on its own
 		throw exception;
 	}
+
 }

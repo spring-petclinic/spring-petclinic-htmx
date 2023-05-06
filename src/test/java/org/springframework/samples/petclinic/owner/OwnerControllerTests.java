@@ -99,10 +99,7 @@ class OwnerControllerTests {
 
 	}
 
-	@CsvSource({
-		"false,owners/createOrUpdateOwnerForm",
-		"true,fragments/owners :: edit"
-	})
+	@CsvSource({ "false,owners/createOrUpdateOwnerForm", "true,fragments/owners :: edit" })
 	@ParameterizedTest
 	void testInitCreationForm(boolean hxRequest, String expectedViewName) throws Exception {
 		mockMvc.perform(toggleHtmx(get("/owners/new"), hxRequest))
@@ -111,12 +108,11 @@ class OwnerControllerTests {
 			.andExpect(view().name(expectedViewName));
 	}
 
-	@ValueSource(booleans = {false, true})
+	@ValueSource(booleans = { false, true })
 	@ParameterizedTest
 	void testProcessCreationFormSuccess(boolean hxRequest) throws Exception {
 		mockMvc
-			.perform(toggleHtmx(post("/owners/new"), hxRequest)
-				.param("firstName", "Joe")
+			.perform(toggleHtmx(post("/owners/new"), hxRequest).param("firstName", "Joe")
 				.param("lastName", "Bloggs")
 				.param("address", "123 Caramel Street")
 				.param("city", "London")
@@ -124,15 +120,13 @@ class OwnerControllerTests {
 			.andExpect(status().is3xxRedirection());
 	}
 
-	@CsvSource({
-		"false,owners/createOrUpdateOwnerForm",
-		"true,fragments/owners :: edit"
-	})
+	@CsvSource({ "false,owners/createOrUpdateOwnerForm", "true,fragments/owners :: edit" })
 	@ParameterizedTest
 	void testProcessCreationFormHasErrors(boolean hxRequest, String expectedViewName) throws Exception {
 		mockMvc
-			.perform(toggleHtmx(post("/owners/new"), hxRequest)
-				.param("firstName", "Joe").param("lastName", "Bloggs").param("city", "London"))
+			.perform(toggleHtmx(post("/owners/new"), hxRequest).param("firstName", "Joe")
+				.param("lastName", "Bloggs")
+				.param("city", "London"))
 			.andExpect(status().isOk())
 			.andExpect(model().attributeHasErrors("owner"))
 			.andExpect(model().attributeHasFieldErrors("owner", "address"))
@@ -140,10 +134,7 @@ class OwnerControllerTests {
 			.andExpect(view().name(expectedViewName));
 	}
 
-	@CsvSource({
-		"false,owners/findOwners",
-		"true,fragments/owners :: find-form"
-	})
+	@CsvSource({ "false,owners/findOwners", "true,fragments/owners :: find-form" })
 	@ParameterizedTest
 	void testInitFindForm(boolean hxRequest, String expectedViewName) throws Exception {
 		mockMvc.perform(toggleHtmx(get("/owners/find"), hxRequest))
@@ -152,10 +143,7 @@ class OwnerControllerTests {
 			.andExpect(view().name(expectedViewName));
 	}
 
-	@CsvSource({
-		"false,owners/ownersList",
-		"true,fragments/owners :: list"
-	})
+	@CsvSource({ "false,owners/ownersList", "true,fragments/owners :: list" })
 	@ParameterizedTest
 	void testProcessFindFormSuccess(boolean hxRequest, String expectedViewName) throws Exception {
 		Page<Owner> tasks = new PageImpl<Owner>(Lists.newArrayList(george(), new Owner()));
@@ -165,21 +153,17 @@ class OwnerControllerTests {
 			.andExpect(view().name(expectedViewName));
 	}
 
-	@ValueSource(booleans = {false, true})
+	@ValueSource(booleans = { false, true })
 	@ParameterizedTest
 	void testProcessFindFormByLastName(boolean hxRequest) throws Exception {
 		Page<Owner> tasks = new PageImpl<Owner>(Lists.newArrayList(george()));
 		Mockito.when(this.owners.findByLastName(eq("Franklin"), any(Pageable.class))).thenReturn(tasks);
-		mockMvc.perform(toggleHtmx(get("/owners?page=1"), hxRequest)
-			.param("lastName", "Franklin"))
+		mockMvc.perform(toggleHtmx(get("/owners?page=1"), hxRequest).param("lastName", "Franklin"))
 			.andExpect(status().is3xxRedirection())
 			.andExpect(view().name("redirect:/owners/" + TEST_OWNER_ID));
 	}
 
-	@CsvSource({
-		"false,owners/findOwners",
-		"true,fragments/owners :: find-form"
-	})
+	@CsvSource({ "false,owners/findOwners", "true,fragments/owners :: find-form" })
 	@ParameterizedTest
 	void testProcessFindFormNoOwnersFound(boolean hxRequest, String expectedViewName) throws Exception {
 		Page<Owner> tasks = new PageImpl<Owner>(Lists.newArrayList());
@@ -192,10 +176,7 @@ class OwnerControllerTests {
 
 	}
 
-	@CsvSource({
-		"false,owners/createOrUpdateOwnerForm",
-		"true,fragments/owners :: edit"
-	})
+	@CsvSource({ "false,owners/createOrUpdateOwnerForm", "true,fragments/owners :: edit" })
 	@ParameterizedTest
 	void testInitUpdateOwnerForm(boolean hxRequest, String expectedViewName) throws Exception {
 		mockMvc.perform(toggleHtmx(get("/owners/{ownerId}/edit", TEST_OWNER_ID), hxRequest))
@@ -209,12 +190,11 @@ class OwnerControllerTests {
 			.andExpect(view().name(expectedViewName));
 	}
 
-	@ValueSource(booleans = {false, true})
+	@ValueSource(booleans = { false, true })
 	@ParameterizedTest
 	void testProcessUpdateOwnerFormSuccess(boolean hxRequest) throws Exception {
 		mockMvc
-			.perform(toggleHtmx(post("/owners/{ownerId}/edit", TEST_OWNER_ID), hxRequest)
-				.param("firstName", "Joe")
+			.perform(toggleHtmx(post("/owners/{ownerId}/edit", TEST_OWNER_ID), hxRequest).param("firstName", "Joe")
 				.param("lastName", "Bloggs")
 				.param("address", "123 Caramel Street")
 				.param("city", "London")
@@ -223,7 +203,7 @@ class OwnerControllerTests {
 			.andExpect(view().name("redirect:/owners/{ownerId}"));
 	}
 
-	@ValueSource(booleans = {false, true})
+	@ValueSource(booleans = { false, true })
 	@ParameterizedTest
 	void testProcessUpdateOwnerFormUnchangedSuccess(boolean hxRequest) throws Exception {
 		mockMvc.perform(toggleHtmx(post("/owners/{ownerId}/edit", TEST_OWNER_ID), hxRequest))
@@ -231,15 +211,11 @@ class OwnerControllerTests {
 			.andExpect(view().name("redirect:/owners/{ownerId}"));
 	}
 
-	@CsvSource({
-		"false,owners/createOrUpdateOwnerForm",
-		"true,fragments/owners :: edit"
-	})
+	@CsvSource({ "false,owners/createOrUpdateOwnerForm", "true,fragments/owners :: edit" })
 	@ParameterizedTest
 	void testProcessUpdateOwnerFormHasErrors(boolean hxRequest, String expectedViewName) throws Exception {
 		mockMvc
-			.perform(toggleHtmx(post("/owners/{ownerId}/edit", TEST_OWNER_ID), hxRequest)
-				.param("firstName", "Joe")
+			.perform(toggleHtmx(post("/owners/{ownerId}/edit", TEST_OWNER_ID), hxRequest).param("firstName", "Joe")
 				.param("lastName", "Bloggs")
 				.param("address", "")
 				.param("telephone", ""))
@@ -250,10 +226,7 @@ class OwnerControllerTests {
 			.andExpect(view().name(expectedViewName));
 	}
 
-	@CsvSource({
-		"false,owners/ownerDetails",
-		"true,fragments/owners :: details"
-	})
+	@CsvSource({ "false,owners/ownerDetails", "true,fragments/owners :: details" })
 	@ParameterizedTest
 	void testShowOwner(boolean hxRequest, String expectedViewName) throws Exception {
 		mockMvc.perform(toggleHtmx(get("/owners/{ownerId}", TEST_OWNER_ID), hxRequest))
