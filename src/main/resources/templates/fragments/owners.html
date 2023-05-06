@@ -83,10 +83,10 @@
     </tr>
   </table>
 
-  <a th:attr="hx-get=@{__${owner.id}__/edit}" hx:target="${'#block-content'} " th:href="@{__${owner.id}__/edit}"
+  <a th:attr="hx-get=@{__${owner.id}__/edit}" hx:target="${'#block-content'}" th:href="@{__${owner.id}__/edit}"
      class="btn btn-primary">Edit
     Owner</a>
-  <a th:href="@{__${owner.id}__/pets/new}" class="btn btn-primary">Add
+  <a th:attr="hx-get=@{__${owner.id}__/pets/new}" th:href="@{__${owner.id}__/pets/new}" hx:target="${'#block-content'}" class="btn btn-primary">Add
     New Pet</a>
 </div>
 
