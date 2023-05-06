@@ -23,6 +23,7 @@
     <webjars-bootstrap.version>5.2.3</webjars-bootstrap.version>
     <webjars-font-awesome.version>4.7.0</webjars-font-awesome.version>
     <htmx.org.version>1.9.2</htmx.org.version>
+    <hyperscript.org.version>0.9.8</hyperscript.org.version>
 
     <jacoco.version>0.8.8</jacoco.version>
     <nohttp-checkstyle.version>0.0.11</nohttp-checkstyle.version>
@@ -105,6 +106,11 @@
       <groupId>org.webjars.npm</groupId>
       <artifactId>htmx.org</artifactId>
       <version>${htmx.org.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars.npm</groupId>
+      <artifactId>hyperscript.org</artifactId>
+      <version>${hyperscript.org.version}</version>
     </dependency>
     <!-- end of webjars -->
 

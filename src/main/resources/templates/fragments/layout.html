@@ -34,7 +34,8 @@
 
         <ul class="navbar-nav me-auto mb-2 mb-lg-0" th:remove="all">
 
-          <li th:fragment="menuItem (link,active,title,glyph,text,target)" th:class="nav-item">
+          <li th:fragment="menuItem (link,active,title,glyph,text,target)" th:class="nav-item"
+              _="on htmx:afterOnLoad take .active for event.target">
             <a th:class="${active==menu ? 'nav-link active' : 'nav-link'}" th:href="@{__${link}__}" th:title="${title}"
                hx:get="@{__${link}__}" hx:target="${target}" hx:push-url="@{__${link}__}">
               <span th:class="'fa fa-'+${glyph}" class="fa fa-home"></span>
@@ -93,6 +94,7 @@
 
   <script th:src="@{/webjars/bootstrap/5.2.3/dist/js/bootstrap.bundle.min.js}"></script>
   <script th:src="@{/webjars/htmx.org/1.9.2/dist/htmx.min.js}"></script>
+  <script th:src="@{/webjars/hyperscript.org/0.9.8/dist/_hyperscript.min.js}"></script>
 
 </body>
 
