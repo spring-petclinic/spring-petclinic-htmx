@@ -76,7 +76,7 @@ class OwnerController {
 		return handleCreationForm(model, "fragments/owners :: edit");
 	}
 
-	public String handleCreationForm(Map<String, Object> model, String view) {
+	protected String handleCreationForm(Map<String, Object> model, String view) {
 		Owner owner = new Owner();
 		model.put("owner", owner);
 		return view;
@@ -106,18 +106,19 @@ class OwnerController {
 	@GetMapping("/owners")
 	public String ownersList(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result,
 							 Model model, HttpServletResponse response) {
-		return processFindForm(page, owner, result, model, response, false);
+		return processFindForm(page, owner, result, model, response, "owners/findOwners", "owners/ownersList");
 	}
 
 	@HxRequest
 	@GetMapping("/owners")
 	public String htmxOwnersList(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result,
 								 Model model, HttpServletResponse response) {
-		return processFindForm(page, owner, result, model, response, true);
+		return processFindForm(page, owner, result, model, response,
+			"fragments/owners :: find-form", "fragments/owners :: list");
 	}
 
 	public String processFindForm(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result,
-								  Model model, HttpServletResponse response, boolean useFragments) {
+								  Model model, HttpServletResponse response, String emptyView, String listView) {
 		// allow parameterless GET request for /owners to return all records
 		if (owner.getLastName() == null) {
 			owner.setLastName(""); // empty string signifies broadest possible search
@@ -128,7 +129,7 @@ class OwnerController {
 		if (ownersResults.isEmpty()) {
 			// no owners found
 			result.rejectValue("lastName", "notFound", "not found");
-			return useFragments ? "fragments/owners :: find-form" : "owners/findOwners";
+			return emptyView;
 		}
 
 		if (ownersResults.getTotalElements() == 1) {
@@ -138,10 +139,11 @@ class OwnerController {
 		}
 
 		// multiple owners found
-		return addPaginationModel(owner.getLastName(), page, model, ownersResults, response, useFragments);
+		return addPaginationModel(owner.getLastName(), page, model, ownersResults, response, listView);
 	}
 
-	private String addPaginationModel(String lastName, int page, Model model, Page<Owner> paginated, HttpServletResponse response, boolean useFragments) {
+	private String addPaginationModel(String lastName, int page, Model model, Page<Owner> paginated,
+									  HttpServletResponse response, String listView) {
 		model.addAttribute("listOwners", paginated);
 		List<Owner> listOwners = paginated.getContent();
 		model.addAttribute("currentPage", page);
@@ -149,7 +151,7 @@ class OwnerController {
 		model.addAttribute("totalItems", paginated.getTotalElements());
 		model.addAttribute("listOwners", listOwners);
 		response.addHeader("HX-Push-Url", "/owners?lastName=" + lastName + "&page=" + page);
-		return useFragments ? "fragments/owners :: list" : "owners/ownersList";
+		return listView;
 	}
 
 	private Page<Owner> findPaginatedForOwnersLastName(int page, String lastname) {
@@ -165,8 +167,9 @@ class OwnerController {
 
 	@HxRequest
 	@GetMapping("/owners/{ownerId}/edit")
-	public String htmxInitUpdateOwnerForm(@PathVariable("ownerId") int ownerId, Model model, HttpServletResponse response) {
-		response.addHeader("HX-Push-Url", "/owners/" + ownerId + "/edit");
+	public String htmxInitUpdateOwnerForm(@PathVariable("ownerId") int ownerId, Model model,
+										  HttpServletRequest request, HttpServletResponse response) {
+		response.addHeader("HX-Push-Url", request.getServletPath());
 		return handleInitUpdateOwnerForm(ownerId, model, "fragments/owners :: edit");
 	}
 
@@ -185,7 +188,7 @@ class OwnerController {
 	@HxRequest
 	@PostMapping("/owners/{ownerId}/edit")
 	public String htmxProcessUpdateOwnerForm(@Valid Owner owner, BindingResult result,
-										 @PathVariable("ownerId") int ownerId) {
+											 @PathVariable("ownerId") int ownerId) {
 		return handleProcessUpdateOwnerForm(owner, result, ownerId, "fragments/owners :: edit");
 	}
 
@@ -201,6 +204,7 @@ class OwnerController {
 
 	/**
 	 * Custom handler for displaying an owner.
+	 *
 	 * @param ownerId the ID of the owner to display
 	 * @return a ModelMap with the model attributes for the view
 	 */
@@ -216,7 +220,7 @@ class OwnerController {
 		return handleShowOwner(ownerId, "fragments/owners :: details");
 	}
 
-	private ModelAndView handleShowOwner(int ownerId, String view) {
+	protected ModelAndView handleShowOwner(int ownerId, String view) {
 		ModelAndView mav = new ModelAndView(view);
 		Owner owner = this.owners.findById(ownerId);
 		mav.addObject(owner);
