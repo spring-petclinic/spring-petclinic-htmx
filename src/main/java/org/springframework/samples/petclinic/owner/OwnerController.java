@@ -114,21 +114,21 @@ class OwnerController {
 	}
 
 	@GetMapping("/owners")
-	public String ownersList(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result,
-							 Model model, HttpServletResponse response) {
+	public String ownersList(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result, Model model,
+			HttpServletResponse response) {
 		return processFindForm(page, owner, result, model, response, "owners/findOwners", "owners/ownersList");
 	}
 
 	@HxRequest
 	@GetMapping("/owners")
 	public String htmxOwnersList(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result,
-								 Model model, HttpServletResponse response) {
-		return processFindForm(page, owner, result, model, response,
-			"fragments/owners :: find-form", "fragments/owners :: list");
+			Model model, HttpServletResponse response) {
+		return processFindForm(page, owner, result, model, response, "fragments/owners :: find-form",
+				"fragments/owners :: list");
 	}
 
 	public String processFindForm(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result,
-								  Model model, HttpServletResponse response, String emptyView, String listView) {
+			Model model, HttpServletResponse response, String emptyView, String listView) {
 		// allow parameterless GET request for /owners to return all records
 		if (owner.getLastName() == null) {
 			owner.setLastName(""); // empty string signifies broadest possible search
@@ -153,7 +153,7 @@ class OwnerController {
 	}
 
 	private String addPaginationModel(String lastName, int page, Model model, Page<Owner> paginated,
-									  HttpServletResponse response, String listView) {
+			HttpServletResponse response, String listView) {
 		model.addAttribute("listOwners", paginated);
 		List<Owner> listOwners = paginated.getContent();
 		model.addAttribute("currentPage", page);
@@ -177,8 +177,8 @@ class OwnerController {
 
 	@HxRequest
 	@GetMapping("/owners/{ownerId}/edit")
-	public String htmxInitUpdateOwnerForm(@PathVariable("ownerId") int ownerId, Model model,
-										  HttpServletRequest request, HttpServletResponse response) {
+	public String htmxInitUpdateOwnerForm(@PathVariable("ownerId") int ownerId, Model model, HttpServletRequest request,
+			HttpServletResponse response) {
 		response.addHeader("HX-Push-Url", request.getServletPath());
 		return handleInitUpdateOwnerForm(ownerId, model, "fragments/owners :: edit");
 	}
@@ -191,14 +191,14 @@ class OwnerController {
 
 	@PostMapping("/owners/{ownerId}/edit")
 	public String processUpdateOwnerForm(@Valid Owner owner, BindingResult result,
-										 @PathVariable("ownerId") int ownerId) {
+			@PathVariable("ownerId") int ownerId) {
 		return handleProcessUpdateOwnerForm(owner, result, ownerId, VIEWS_OWNER_CREATE_OR_UPDATE_FORM);
 	}
 
 	@HxRequest
 	@PostMapping("/owners/{ownerId}/edit")
 	public String htmxProcessUpdateOwnerForm(@Valid Owner owner, BindingResult result,
-											 @PathVariable("ownerId") int ownerId) {
+			@PathVariable("ownerId") int ownerId) {
 		return handleProcessUpdateOwnerForm(owner, result, ownerId, "fragments/owners :: edit");
 	}
 
@@ -214,7 +214,6 @@ class OwnerController {
 
 	/**
 	 * Custom handler for displaying an owner.
-	 *
 	 * @param ownerId the ID of the owner to display
 	 * @return a ModelMap with the model attributes for the view
 	 */
