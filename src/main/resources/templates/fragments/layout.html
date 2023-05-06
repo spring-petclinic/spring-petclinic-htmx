@@ -34,8 +34,9 @@
 
         <ul class="navbar-nav me-auto mb-2 mb-lg-0" th:remove="all">
 
-          <li th:fragment="menuItem (link,active,title,glyph,text)" th:class="nav-item">
-            <a th:class="${active==menu ? 'nav-link active' : 'nav-link'}" th:href="@{__${link}__}" th:title="${title}">
+          <li th:fragment="menuItem (link,active,title,glyph,text,target)" th:class="nav-item">
+            <a th:class="${active==menu ? 'nav-link active' : 'nav-link'}" th:href="@{__${link}__}" th:title="${title}"
+               hx:get="@{__${link}__}" hx:target="${target}" hx:push-url="@{__${link}__}">
               <span th:class="'fa fa-'+${glyph}" class="fa fa-home"></span>
               <span th:text="${text}">Template</span>
             </a>
@@ -45,23 +46,23 @@
 
         <ul class="nav navbar-nav me-auto">
 
-          <li th:replace="~{::menuItem ('/','home','home page','home','Home')}">
+          <li th:replace="~{::menuItem ('/','home','home page','home','Home','#block-content')}">
             <span class="fa fa-home" aria-hidden="true"></span>
             <span>Home</span>
           </li>
 
-          <li th:replace="~{::menuItem ('/owners/find','owners','find owners','search','Find owners')}">
+          <li th:replace="~{::menuItem ('/owners/find','owners','find owners','search','Find owners','#block-content')}">
             <span class="fa fa-search" aria-hidden="true"></span>
             <span>Find owners</span>
           </li>
 
-          <li th:replace="~{::menuItem ('/vets.html','vets','veterinarians','th-list','Veterinarians')}">
+          <li th:replace="~{::menuItem ('/vets.html','vets','veterinarians','th-list','Veterinarians','#block-content')}">
             <span class="fa fa-th-list" aria-hidden="true"></span>
             <span>Veterinarians</span>
           </li>
 
           <li
-            th:replace="~{::menuItem ('/oups','error','trigger a RuntimeException to see how it is handled','exclamation-triangle','Error')}">
+            th:replace="~{::menuItem ('/oups','error','trigger a RuntimeException to see how it is handled','exclamation-triangle','Error','#block-content')}">
             <span class="fa exclamation-triangle" aria-hidden="true"></span>
             <span>Error</span>
           </li>
@@ -73,7 +74,9 @@
   <div class="container-fluid">
     <div class="container xd-container">
 
-      <th:block th:insert="${template}" />
+      <div id="block-content">
+        <th:block th:insert="${template}" />
+      </div>
 
       <br />
       <br />
@@ -88,6 +91,7 @@
   </div>
 
   <script th:src="@{/webjars/bootstrap/5.2.3/dist/js/bootstrap.bundle.min.js}"></script>
+  <script th:src="@{/webjars/htmx.org/1.9.2/dist/htmx.min.js}"></script>
 
 </body>
 
