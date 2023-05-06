@@ -18,6 +18,7 @@ package org.springframework.samples.petclinic.owner;
 import java.util.List;
 import java.util.Map;
 
+import io.github.wimdeblauwe.hsbt.mvc.HxRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -82,6 +83,12 @@ class OwnerController {
 	@GetMapping("/owners/find")
 	public String initFindForm() {
 		return "owners/findOwners";
+	}
+
+	@HxRequest
+	@GetMapping("/owners/find")
+	public String htmxInitFindForm() {
+		return "fragments/owners :: find-form";
 	}
 
 	@GetMapping("/owners")
