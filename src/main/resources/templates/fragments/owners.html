@@ -141,7 +141,9 @@
 
 <div th:fragment="edit" th:remove="tag">
   <h2>Owner</h2>
-  <form th:object="${owner}" class="form-horizontal" id="add-owner-form" method="post">
+  <form th:object="${owner}" hx:post="@{'/owners/' + ${owner['id'] + '/edit'}}"
+        hx:swap="innerHTML" hx:target="${'#block-content'}"
+        class="form-horizontal" id="add-owner-form" method="post">
     <div class="form-group has-feedback">
       <input
         th:replace="~{fragments/inputField :: input ('First Name', 'firstName', 'text')}" />
