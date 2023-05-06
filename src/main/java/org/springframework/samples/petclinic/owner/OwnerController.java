@@ -66,9 +66,19 @@ class OwnerController {
 
 	@GetMapping("/owners/new")
 	public String initCreationForm(Map<String, Object> model) {
+		return handleCreationForm(model, VIEWS_OWNER_CREATE_OR_UPDATE_FORM);
+	}
+
+	@HxRequest
+	@GetMapping("/owners/new")
+	public String htmxInitCreationForm(Map<String, Object> model) {
+		return handleCreationForm(model, "fragments/owners :: edit");
+	}
+
+	public String handleCreationForm(Map<String, Object> model, String view) {
 		Owner owner = new Owner();
 		model.put("owner", owner);
-		return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
+		return view;
 	}
 
 	@PostMapping("/owners/new")

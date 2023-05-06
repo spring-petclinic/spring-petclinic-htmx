@@ -24,7 +24,8 @@
       </div>
     </div>
 
-    <a class="btn btn-primary" th:href="@{/owners/new}">Add Owner</a>
+    <a class="btn btn-primary" hx:get="@{/owners/new}" hx:swap="innerHTML" hx:target="${'#block-content'}"
+       hx:push-url="@{/owners/new}" th:href="@{/owners/new}">Add Owner</a>
 
   </form>
 </div>
@@ -56,7 +57,7 @@
     </tbody>
   </table>
   <div th:if="${totalPages > 1}">
-    <div th:replace="~{fragments/pagination::component('/owners', ${totalPages}, ${currentPage})}" />
+    <div th:replace="~{fragments/pagination::component('/owners', ${totalPages}, ${currentPage})}"/>
   </div>
 </div>
 
@@ -82,7 +83,8 @@
     </tr>
   </table>
 
-  <a th:attr="hx-get=@{__${owner.id}__/edit}" hx:target="${'#block-content'} "th:href="@{__${owner.id}__/edit}" class="btn btn-primary">Edit
+  <a th:attr="hx-get=@{__${owner.id}__/edit}" hx:target="${'#block-content'} " th:href="@{__${owner.id}__/edit}"
+     class="btn btn-primary">Edit
     Owner</a>
   <a th:href="@{__${owner.id}__/pets/new}" class="btn btn-primary">Add
     New Pet</a>
@@ -119,8 +121,10 @@
             <td th:text="${visit?.description}"></td>
           </tr>
           <tr>
-            <td><a th:href="@{__${owner.id}__/pets/__${pet.id}__/edit}" th:attr="hx-get=@{__${owner.id}__/pets/__${pet.id}__/edit}">Edit Pet</a></td>
-            <td><a th:href="@{__${owner.id}__/pets/__${pet.id}__/visits/new}" th:attr="hx-get=@{__${owner.id}__/pets/__${pet.id}__/visits/new}">Add Visit</a></td>
+            <td><a th:href="@{__${owner.id}__/pets/__${pet.id}__/edit}"
+                   th:attr="hx-get=@{__${owner.id}__/pets/__${pet.id}__/edit}">Edit Pet</a></td>
+            <td><a th:href="@{__${owner.id}__/pets/__${pet.id}__/visits/new}"
+                   th:attr="hx-get=@{__${owner.id}__/pets/__${pet.id}__/visits/new}">Add Visit</a></td>
           </tr>
         </table>
       </td>
@@ -130,38 +134,39 @@
 </div>
 
 <div th:fragment="details" th:remove="tag">
-  <div th:replace="~{:: information}" />
+  <div th:replace="~{:: information}"/>
 
-  <br />
-  <br />
-  <br />
+  <br/>
+  <br/>
+  <br/>
 
-  <div th:replace="~{:: pets-visits}" />
+  <div th:replace="~{:: pets-visits}"/>
 </div>
 
 <div th:fragment="edit" th:remove="tag">
   <h2>Owner</h2>
-  <form th:object="${owner}" hx:post="@{'/owners/' + ${owner['id'] + '/edit'}}"
+  <form th:object="${owner}" hx-post
         hx:swap="innerHTML" hx:target="${'#block-content'}"
         class="form-horizontal" id="add-owner-form" method="post">
     <div class="form-group has-feedback">
       <input
-        th:replace="~{fragments/inputField :: input ('First Name', 'firstName', 'text')}" />
+        th:replace="~{fragments/inputField :: input ('First Name', 'firstName', 'text')}"/>
       <input
-        th:replace="~{fragments/inputField :: input ('Last Name', 'lastName', 'text')}" />
+        th:replace="~{fragments/inputField :: input ('Last Name', 'lastName', 'text')}"/>
       <input
-        th:replace="~{fragments/inputField :: input ('Address', 'address', 'text')}" />
+        th:replace="~{fragments/inputField :: input ('Address', 'address', 'text')}"/>
       <input
-        th:replace="~{fragments/inputField :: input ('City', 'city', 'text')}" />
+        th:replace="~{fragments/inputField :: input ('City', 'city', 'text')}"/>
       <input
-        th:replace="~{fragments/inputField :: input ('Telephone', 'telephone', 'text')}" />
+        th:replace="~{fragments/inputField :: input ('Telephone', 'telephone', 'text')}"/>
     </div>
     <div class="form-group">
       <div class="col-sm-offset-2 col-sm-10">
         <button
           th:with="text=${owner['new']} ? 'Add Owner' : 'Update Owner'"
           class="btn btn-primary" type="submit" th:text="${text}">Add
-          Owner</button>
+          Owner
+        </button>
       </div>
     </div>
   </form>
