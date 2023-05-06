@@ -149,17 +149,17 @@ class OwnerController {
 
 	@GetMapping("/owners/{ownerId}/edit")
 	public String initUpdateOwnerForm(@PathVariable("ownerId") int ownerId, Model model) {
-		return prepareInitUpdateOwnerForm(ownerId, model, VIEWS_OWNER_CREATE_OR_UPDATE_FORM);
+		return handleInitUpdateOwnerForm(ownerId, model, VIEWS_OWNER_CREATE_OR_UPDATE_FORM);
 	}
 
 	@HxRequest
 	@GetMapping("/owners/{ownerId}/edit")
 	public String htmxInitUpdateOwnerForm(@PathVariable("ownerId") int ownerId, Model model, HttpServletResponse response) {
 		response.addHeader("HX-Push-Url", "/owners/" + ownerId + "/edit");
-		return prepareInitUpdateOwnerForm(ownerId, model, "fragments/owners :: edit");
+		return handleInitUpdateOwnerForm(ownerId, model, "fragments/owners :: edit");
 	}
 
-	protected String prepareInitUpdateOwnerForm(int ownerId, Model model, String view) {
+	protected String handleInitUpdateOwnerForm(int ownerId, Model model, String view) {
 		Owner owner = this.owners.findById(ownerId);
 		model.addAttribute(owner);
 		return view;
@@ -184,17 +184,17 @@ class OwnerController {
 	 */
 	@GetMapping("/owners/{ownerId}")
 	public ModelAndView showOwner(@PathVariable("ownerId") int ownerId) {
-		return prepareShowOwner(ownerId, "owners/ownerDetails");
+		return handleShowOwner(ownerId, "owners/ownerDetails");
 	}
 
 	@HxRequest
 	@GetMapping("/owners/{ownerId}")
 	public ModelAndView htmxShowOwner(@PathVariable("ownerId") int ownerId, HttpServletResponse response) {
 		response.addHeader("HX-Push-Url", "/owners/" + ownerId);
-		return prepareShowOwner(ownerId, "fragments/owners :: details");
+		return handleShowOwner(ownerId, "fragments/owners :: details");
 	}
 
-	private ModelAndView prepareShowOwner(int ownerId, String view) {
+	private ModelAndView handleShowOwner(int ownerId, String view) {
 		ModelAndView mav = new ModelAndView(view);
 		Owner owner = this.owners.findById(ownerId);
 		mav.addObject(owner);
