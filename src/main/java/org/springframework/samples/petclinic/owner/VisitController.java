@@ -88,8 +88,20 @@ class VisitController {
 	@PostMapping("/owners/{ownerId}/pets/{petId}/visits/new")
 	public String processNewVisitForm(@ModelAttribute Owner owner, @PathVariable int petId, @Valid Visit visit,
 			BindingResult result) {
+		return handleProcessNewVisitForm(owner, petId, visit, result, "pets/createOrUpdateVisitForm");
+	}
+
+	@HxRequest
+	@PostMapping("/owners/{ownerId}/pets/{petId}/visits/new")
+	public String htmxProcessNewVisitForm(@ModelAttribute Owner owner, @PathVariable int petId, @Valid Visit visit,
+									  BindingResult result) {
+		return handleProcessNewVisitForm(owner, petId, visit, result, "fragments/pets :: visits");
+	}
+
+	protected String handleProcessNewVisitForm(@ModelAttribute Owner owner, @PathVariable int petId, @Valid Visit visit,
+								   BindingResult result, String errorView) {
 		if (result.hasErrors()) {
-			return "pets/createOrUpdateVisitForm";
+			return errorView;
 		}
 
 		owner.addVisit(petId, visit);
