@@ -2,6 +2,7 @@
   <h2>Find Owners</h2>
 
   <form th:object="${owner}" th:action="@{/owners}" method="get"
+        hx:get="@{/owners}" hx:swap="outerHTML" hx:target="${'#block-content'}"
         class="form-horizontal" id="search-owner-form">
     <div class="form-group">
       <div class="control-group" id="lastNameGroup">
@@ -26,4 +27,61 @@
     <a class="btn btn-primary" th:href="@{/owners/new}">Add Owner</a>
 
   </form>
+</div>
+
+<span th:fragment="paginationItem(page,condition)" th:tag="remove">
+  <a th:if="${condition}" th:attr="hx-get=@{'/owners?page=' + ${page}}" th:href="@{'/owners?page=' + ${page}}" hx:target="${'#block-content'}">[[${page}]]</a>
+  <span th:unless="${condition}">[[${page}]]</span>
+</span>
+
+<span th:fragment="paginationControl(page,condition,title,class)" th:tag="remove">
+  <a th:if="${condition}" th:attr="hx-get=@{'/owners?page=' + ${page}}" th:href="@{'/owners?page=' + ${page}}" hx:target="${'#block-content'}" th:title="${title}" th:class="${class}"></a>
+  <span th:unless="${condition}" th:title="${title}" th:class="${class}"></span>
+</span>
+
+<div th:fragment="list" th:remove="tag">
+  <h2>Owners</h2>
+
+  <table id="owners" class="table table-striped">
+    <thead>
+    <tr>
+      <th style="width: 150px;">Name</th>
+      <th style="width: 200px;">Address</th>
+      <th>City</th>
+      <th style="width: 120px">Telephone</th>
+      <th>Pets</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="owner : ${listOwners}">
+      <td>
+        <a th:href="@{/owners/__${owner.id}__}" th:text="${owner.firstName + ' ' + owner.lastName}"/></a>
+      </td>
+      <td th:text="${owner.address}"/>
+      <td th:text="${owner.city}"/>
+      <td th:text="${owner.telephone}"/>
+      <td><span th:text="${#strings.listJoin(owner.pets, ', ')}"/></td>
+    </tr>
+    </tbody>
+  </table>
+  <div th:if="${totalPages > 1}">
+    <span>Pages:</span>
+    <span>[</span>
+    <span th:each="i: ${#numbers.sequence(1, totalPages)}">
+      <span th:replace="~{::paginationItem(${i}, ${currentPage != i})}" />
+    </span>
+    <span>]&nbsp;</span>
+    <span>
+      <span th:replace="~{::paginationControl(1, ${currentPage > 1}, 'First', 'fa fa-fast-backward')}" />
+    </span>
+    <span>
+      <span th:replace="~{::paginationControl(${currentPage - 1}, ${currentPage > 1}, 'Previous', 'fa fa-step-backward')}" />
+    </span>
+    <span>
+      <span th:replace="~{::paginationControl(${currentPage + 1}, ${currentPage < totalPages}, 'Next', 'fa fa-step-forward')}" />
+    </span>
+    <span>
+      <span th:replace="~{::paginationControl(${totalPages}, ${currentPage < totalPages}, 'Next', 'fa fa-fast-forward')}" />
+    </span>
+  </div>
 </div>

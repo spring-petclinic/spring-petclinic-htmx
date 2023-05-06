@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.github.wimdeblauwe.hsbt.mvc.HxRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -92,8 +93,20 @@ class OwnerController {
 	}
 
 	@GetMapping("/owners")
+	public String ownersList(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result,
+							 Model model, HttpServletResponse response) {
+		return processFindForm(page, owner, result, model, response, false);
+	}
+
+	@HxRequest
+	@GetMapping("/owners")
+	public String htmxOwnersList(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result,
+								 Model model, HttpServletResponse response) {
+		return processFindForm(page, owner, result, model, response, true);
+	}
+
 	public String processFindForm(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result,
-			Model model) {
+								  Model model, HttpServletResponse response, boolean useFragments) {
 		// allow parameterless GET request for /owners to return all records
 		if (owner.getLastName() == null) {
 			owner.setLastName(""); // empty string signifies broadest possible search
@@ -104,7 +117,7 @@ class OwnerController {
 		if (ownersResults.isEmpty()) {
 			// no owners found
 			result.rejectValue("lastName", "notFound", "not found");
-			return "owners/findOwners";
+			return useFragments ? "fragments/owners :: find-form" : "owners/findOwners";
 		}
 
 		if (ownersResults.getTotalElements() == 1) {
@@ -114,17 +127,18 @@ class OwnerController {
 		}
 
 		// multiple owners found
-		return addPaginationModel(page, model, ownersResults);
+		return addPaginationModel(owner.getLastName(), page, model, ownersResults, response, useFragments);
 	}
 
-	private String addPaginationModel(int page, Model model, Page<Owner> paginated) {
+	private String addPaginationModel(String lastName, int page, Model model, Page<Owner> paginated, HttpServletResponse response, boolean useFragments) {
 		model.addAttribute("listOwners", paginated);
 		List<Owner> listOwners = paginated.getContent();
 		model.addAttribute("currentPage", page);
 		model.addAttribute("totalPages", paginated.getTotalPages());
 		model.addAttribute("totalItems", paginated.getTotalElements());
 		model.addAttribute("listOwners", listOwners);
-		return "owners/ownersList";
+		response.addHeader("HX-Push-Url", "/owners?lastName=" + lastName + "&page=" + page);
+		return useFragments ? "fragments/owners :: list" : "owners/ownersList";
 	}
 
 	private Page<Owner> findPaginatedForOwnersLastName(int page, String lastname) {
