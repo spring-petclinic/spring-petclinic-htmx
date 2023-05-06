@@ -15,9 +15,7 @@
  */
 package org.springframework.samples.petclinic.system;
 
-import io.github.wimdeblauwe.hsbt.mvc.HxRequest;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 /**
@@ -34,13 +32,6 @@ class CrashController {
 	public String triggerException() {
 		throw new RuntimeException(
 				"Expected: controller used to showcase what " + "happens when an exception is thrown");
-	}
-
-	@HxRequest
-	@GetMapping("/oups")
-	public String htmxTriggerException(Model model) {
-		model.addAttribute("message", "Expected: controller used to showcase what " + "happens when an exception is thrown");
-		return "fragments/errors :: general";
 	}
 
 }
