@@ -22,10 +22,12 @@
     <!-- Web dependencies -->
     <webjars-bootstrap.version>5.2.3</webjars-bootstrap.version>
     <webjars-font-awesome.version>4.7.0</webjars-font-awesome.version>
+    <htmx.org.version>1.9.2</htmx.org.version>
 
     <jacoco.version>0.8.8</jacoco.version>
     <nohttp-checkstyle.version>0.0.11</nohttp-checkstyle.version>
     <spring-format.version>0.0.38</spring-format.version>
+    <htmx-spring-boot-thymeleaf.version>2.0.0</htmx-spring-boot-thymeleaf.version>
 
   </properties>
 
@@ -99,6 +101,11 @@
       <artifactId>font-awesome</artifactId>
       <version>${webjars-font-awesome.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.webjars.npm</groupId>
+      <artifactId>htmx.org</artifactId>
+      <version>${htmx.org.version}</version>
+    </dependency>
     <!-- end of webjars -->
 
     <dependency>
@@ -110,6 +117,13 @@
     <dependency>
       <groupId>jakarta.xml.bind</groupId>
       <artifactId>jakarta.xml.bind-api</artifactId>
+    </dependency>
+
+    <!-- htmx thymeleaf -->
+    <dependency>
+      <groupId>io.github.wimdeblauwe</groupId>
+      <artifactId>htmx-spring-boot-thymeleaf</artifactId>
+      <version>${htmx-spring-boot-thymeleaf.version}</version>
     </dependency>
 
   </dependencies>
