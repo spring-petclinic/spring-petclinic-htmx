@@ -19,6 +19,8 @@ package org.springframework.samples.petclinic.vet;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -31,6 +33,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.samples.petclinic.htmx.HtmxTestUtils.toggleHtmx;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -75,12 +78,13 @@ class VetControllerTests {
 
 	}
 
-	@Test
-	void testShowVetListHtml() throws Exception {
-		mockMvc.perform(MockMvcRequestBuilders.get("/vets.html?page=1"))
+	@CsvSource({ "false,vets/vetList", "true,fragments/vets :: list" })
+	@ParameterizedTest
+	void testShowVetListHtml(boolean hxRequest, String expectedView) throws Exception {
+		mockMvc.perform(toggleHtmx(get("/vets.html?page=1"), hxRequest))
 			.andExpect(status().isOk())
 			.andExpect(model().attributeExists("listVets"))
-			.andExpect(view().name("vets/vetList"));
+			.andExpect(view().name(expectedView));
 	}
 
 	@Test
