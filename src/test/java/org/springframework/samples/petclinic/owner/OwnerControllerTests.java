@@ -41,6 +41,7 @@ import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.samples.petclinic.htmx.HtmxTestUtils.toggleHtmx;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -96,13 +97,6 @@ class OwnerControllerTests {
 		visit.setDate(LocalDate.now());
 		george.getPet("Max").getVisits().add(visit);
 
-	}
-
-	private MockHttpServletRequestBuilder toggleHtmx(MockHttpServletRequestBuilder builder, boolean toggle) {
-		if (toggle) {
-			builder.header("HX-Request", "true");
-		}
-		return builder;
 	}
 
 	@CsvSource({
