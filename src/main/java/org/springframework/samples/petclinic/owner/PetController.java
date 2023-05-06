@@ -17,6 +17,8 @@ package org.springframework.samples.petclinic.owner;
 
 import java.util.Collection;
 
+import io.github.wimdeblauwe.hsbt.mvc.HxRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.StringUtils;
@@ -100,9 +102,21 @@ class PetController {
 
 	@GetMapping("/pets/{petId}/edit")
 	public String initUpdateForm(Owner owner, @PathVariable("petId") int petId, ModelMap model) {
+		return handleInitUpdateForm(owner, petId, model, VIEWS_PETS_CREATE_OR_UPDATE_FORM);
+	}
+
+	@HxRequest
+	@GetMapping("/pets/{petId}/edit")
+	public String htmxInitUpdateForm(@PathVariable("ownerId") int ownerId, Owner owner, @PathVariable("petId") int petId, ModelMap model, HttpServletResponse response) {
+		response.addHeader("HX-Push-Url", "/owners/" + ownerId + "/pets/" + petId + "/edit");
+		return handleInitUpdateForm(owner, petId, model, "fragments/pets :: edit");
+	}
+
+	protected String handleInitUpdateForm(Owner owner, int petId, ModelMap model, String view) {
 		Pet pet = owner.getPet(petId);
+		model.put("owner", owner);
 		model.put("pet", pet);
-		return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
+		return view;
 	}
 
 	@PostMapping("/pets/{petId}/edit")

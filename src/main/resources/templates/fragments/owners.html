@@ -119,8 +119,8 @@
             <td th:text="${visit?.description}"></td>
           </tr>
           <tr>
-            <td><a th:href="@{__${owner.id}__/pets/__${pet.id}__/edit}">Edit Pet</a></td>
-            <td><a th:href="@{__${owner.id}__/pets/__${pet.id}__/visits/new}">Add Visit</a></td>
+            <td><a th:href="@{__${owner.id}__/pets/__${pet.id}__/edit}" th:attr="hx-get=@{__${owner.id}__/pets/__${pet.id}__/edit}">Edit Pet</a></td>
+            <td><a th:href="@{__${owner.id}__/pets/__${pet.id}__/visits/new}" th:attr="hx-get=@{__${owner.id}__/pets/__${pet.id}__/visits/new}">Add Visit</a></td>
           </tr>
         </table>
       </td>
