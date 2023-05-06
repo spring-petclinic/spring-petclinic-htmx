@@ -15,24 +15,18 @@
  */
 package org.springframework.samples.petclinic.owner;
 
-import java.util.Collection;
-
 import io.github.wimdeblauwe.hsbt.mvc.HxRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
+import java.util.Collection;
 
 /**
  * @author Juergen Hoeller
@@ -63,7 +57,7 @@ class PetController {
 
 	@ModelAttribute("pet")
 	public Pet findPet(@PathVariable("ownerId") int ownerId,
-			@PathVariable(name = "petId", required = false) Integer petId) {
+					   @PathVariable(name = "petId", required = false) Integer petId) {
 		return petId == null ? new Pet() : this.owners.findById(ownerId).getPet(petId);
 	}
 
@@ -143,9 +137,19 @@ class PetController {
 
 	@PostMapping("/pets/{petId}/edit")
 	public String processUpdateForm(@Valid Pet pet, BindingResult result, Owner owner, ModelMap model) {
+		return handleProcessUpdateForm(pet, result, owner, model, VIEWS_PETS_CREATE_OR_UPDATE_FORM);
+	}
+
+	@HxRequest
+	@PostMapping("/pets/{petId}/edit")
+	public String htmxProcessUpdateForm(@Valid Pet pet, BindingResult result, Owner owner, ModelMap model) {
+		return handleProcessUpdateForm(pet, result, owner, model, "fragments/pets :: edit");
+	}
+
+	protected String handleProcessUpdateForm(@Valid Pet pet, BindingResult result, Owner owner, ModelMap model, String view) {
 		if (result.hasErrors()) {
 			model.put("pet", pet);
-			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
+			return view;
 		}
 
 		owner.addPet(pet);
