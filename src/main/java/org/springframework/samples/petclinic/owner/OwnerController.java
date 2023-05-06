@@ -173,7 +173,18 @@ class OwnerController {
 	 */
 	@GetMapping("/owners/{ownerId}")
 	public ModelAndView showOwner(@PathVariable("ownerId") int ownerId) {
-		ModelAndView mav = new ModelAndView("owners/ownerDetails");
+		return prepareShowOwner(ownerId, "owners/ownerDetails");
+	}
+
+	@HxRequest
+	@GetMapping("/owners/{ownerId}")
+	public ModelAndView htmxShowOwner(@PathVariable("ownerId") int ownerId, HttpServletResponse response) {
+		response.addHeader("HX-Push-Url", "/owners/" + ownerId);
+		return prepareShowOwner(ownerId, "fragments/owners :: details");
+	}
+
+	private ModelAndView prepareShowOwner(int ownerId, String view) {
+		ModelAndView mav = new ModelAndView(view);
 		Owner owner = this.owners.findById(ownerId);
 		mav.addObject(owner);
 		return mav;
