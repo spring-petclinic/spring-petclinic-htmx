@@ -16,6 +16,7 @@
 
 package org.springframework.samples.petclinic.system;
 
+import io.github.wimdeblauwe.hsbt.mvc.HxRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -25,6 +26,12 @@ class WelcomeController {
 	@GetMapping("/")
 	public String welcome() {
 		return "welcome";
+	}
+
+	@HxRequest
+	@GetMapping("/")
+	public String htmxWelcome() {
+		return "fragments/welcome :: welcome";
 	}
 
 }
