@@ -98,6 +98,16 @@ class PetController {
 
 	@PostMapping("/pets/new")
 	public String processCreationForm(Owner owner, @Valid Pet pet, BindingResult result, ModelMap model) {
+		return handleProcessCreationForm(owner, pet, result, model, VIEWS_PETS_CREATE_OR_UPDATE_FORM);
+	}
+
+	@HxRequest
+	@PostMapping("/pets/new")
+	public String htmxProcessCreationForm(Owner owner, @Valid Pet pet, BindingResult result, ModelMap model) {
+		return handleProcessCreationForm(owner, pet, result, model, "fragments/pets :: edit");
+	}
+
+	protected String handleProcessCreationForm(Owner owner, @Valid Pet pet, BindingResult result, ModelMap model, String view) {
 		if (StringUtils.hasLength(pet.getName()) && pet.isNew() && owner.getPet(pet.getName(), true) != null) {
 			result.rejectValue("name", "duplicate", "already exists");
 		}
@@ -105,7 +115,7 @@ class PetController {
 		owner.addPet(pet);
 		if (result.hasErrors()) {
 			model.put("pet", pet);
-			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
+			return view;
 		}
 
 		this.owners.save(owner);
