@@ -58,37 +58,35 @@ class VisitControllerTests {
 		given(this.owners.findById(TEST_OWNER_ID)).willReturn(owner);
 	}
 
-	@CsvSource({
-		"false,pets/createOrUpdateVisitForm",
-		"true,fragments/pets :: visits"
-	})
+	@CsvSource({ "false,pets/createOrUpdateVisitForm", "true,fragments/pets :: visits" })
 	@ParameterizedTest
 	void testInitNewVisitForm(boolean hxRequest, String expectedView) throws Exception {
-		mockMvc.perform(toggleHtmx(get("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID, TEST_PET_ID), hxRequest))
+		mockMvc
+			.perform(
+					toggleHtmx(get("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID, TEST_PET_ID), hxRequest))
 			.andExpect(status().isOk())
 			.andExpect(view().name(expectedView));
 	}
 
-	@ValueSource(booleans = {false, true})
+	@ValueSource(booleans = { false, true })
 	@ParameterizedTest
 	void testProcessNewVisitFormSuccess(boolean hxRequest) throws Exception {
 		mockMvc
-			.perform(toggleHtmx(post("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID, TEST_PET_ID), hxRequest)
-				.param("name", "George")
-				.param("description", "Visit Description"))
+			.perform(
+					toggleHtmx(post("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID, TEST_PET_ID), hxRequest)
+						.param("name", "George")
+						.param("description", "Visit Description"))
 			.andExpect(status().is3xxRedirection())
 			.andExpect(view().name("redirect:/owners/{ownerId}"));
 	}
 
-	@CsvSource({
-		"false,pets/createOrUpdateVisitForm",
-		"true,fragments/pets :: visits"
-	})
+	@CsvSource({ "false,pets/createOrUpdateVisitForm", "true,fragments/pets :: visits" })
 	@ParameterizedTest
 	void testProcessNewVisitFormHasErrors(boolean hxRequest, String expectedView) throws Exception {
 		mockMvc
-			.perform(toggleHtmx(post("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID, TEST_PET_ID), hxRequest)
-				.param("name", "George"))
+			.perform(
+					toggleHtmx(post("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID, TEST_PET_ID), hxRequest)
+						.param("name", "George"))
 			.andExpect(model().attributeHasErrors("visit"))
 			.andExpect(status().isOk())
 			.andExpect(view().name(expectedView));
