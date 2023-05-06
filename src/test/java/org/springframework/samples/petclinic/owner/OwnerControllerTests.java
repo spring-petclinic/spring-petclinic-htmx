@@ -16,28 +16,14 @@
 
 package org.springframework.samples.petclinic.owner;
 
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
-
-import java.time.LocalDate;
-import java.util.List;
-
 import org.assertj.core.util.Lists;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -46,6 +32,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import static org.hamcrest.Matchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
  * Test class for {@link OwnerController}
@@ -80,7 +78,9 @@ class OwnerControllerTests {
 		george.addPet(max);
 		max.setId(1);
 		return george;
-	};
+	}
+
+	;
 
 	@BeforeEach
 	void setup() {
@@ -98,18 +98,31 @@ class OwnerControllerTests {
 
 	}
 
-	@Test
-	void testInitCreationForm() throws Exception {
-		mockMvc.perform(get("/owners/new"))
-			.andExpect(status().isOk())
-			.andExpect(model().attributeExists("owner"))
-			.andExpect(view().name("owners/createOrUpdateOwnerForm"));
+	private MockHttpServletRequestBuilder toggleHtmx(MockHttpServletRequestBuilder builder, boolean toggle) {
+		if (toggle) {
+			builder.header("HX-Request", "true");
+		}
+		return builder;
 	}
 
-	@Test
-	void testProcessCreationFormSuccess() throws Exception {
+	@CsvSource({
+		"false,owners/createOrUpdateOwnerForm",
+		"true,fragments/owners :: edit"
+	})
+	@ParameterizedTest
+	void testInitCreationForm(boolean hxRequest, String expectedViewName) throws Exception {
+		mockMvc.perform(toggleHtmx(get("/owners/new"), hxRequest))
+			.andExpect(status().isOk())
+			.andExpect(model().attributeExists("owner"))
+			.andExpect(view().name(expectedViewName));
+	}
+
+	@ValueSource(booleans = {false, true})
+	@ParameterizedTest
+	void testProcessCreationFormSuccess(boolean hxRequest) throws Exception {
 		mockMvc
-			.perform(post("/owners/new").param("firstName", "Joe")
+			.perform(toggleHtmx(post("/owners/new"), hxRequest)
+				.param("firstName", "Joe")
 				.param("lastName", "Bloggs")
 				.param("address", "123 Caramel Street")
 				.param("city", "London")
@@ -117,56 +130,81 @@ class OwnerControllerTests {
 			.andExpect(status().is3xxRedirection());
 	}
 
-	@Test
-	void testProcessCreationFormHasErrors() throws Exception {
+	@CsvSource({
+		"false,owners/createOrUpdateOwnerForm",
+		"true,fragments/owners :: edit"
+	})
+	@ParameterizedTest
+	void testProcessCreationFormHasErrors(boolean hxRequest, String expectedViewName) throws Exception {
 		mockMvc
-			.perform(post("/owners/new").param("firstName", "Joe").param("lastName", "Bloggs").param("city", "London"))
+			.perform(toggleHtmx(post("/owners/new"), hxRequest)
+				.param("firstName", "Joe").param("lastName", "Bloggs").param("city", "London"))
 			.andExpect(status().isOk())
 			.andExpect(model().attributeHasErrors("owner"))
 			.andExpect(model().attributeHasFieldErrors("owner", "address"))
 			.andExpect(model().attributeHasFieldErrors("owner", "telephone"))
-			.andExpect(view().name("owners/createOrUpdateOwnerForm"));
+			.andExpect(view().name(expectedViewName));
 	}
 
-	@Test
-	void testInitFindForm() throws Exception {
-		mockMvc.perform(get("/owners/find"))
+	@CsvSource({
+		"false,owners/findOwners",
+		"true,fragments/owners :: find-form"
+	})
+	@ParameterizedTest
+	void testInitFindForm(boolean hxRequest, String expectedViewName) throws Exception {
+		mockMvc.perform(toggleHtmx(get("/owners/find"), hxRequest))
 			.andExpect(status().isOk())
 			.andExpect(model().attributeExists("owner"))
-			.andExpect(view().name("owners/findOwners"));
+			.andExpect(view().name(expectedViewName));
 	}
 
-	@Test
-	void testProcessFindFormSuccess() throws Exception {
+	@CsvSource({
+		"false,owners/ownersList",
+		"true,fragments/owners :: list"
+	})
+	@ParameterizedTest
+	void testProcessFindFormSuccess(boolean hxRequest, String expectedViewName) throws Exception {
 		Page<Owner> tasks = new PageImpl<Owner>(Lists.newArrayList(george(), new Owner()));
 		Mockito.when(this.owners.findByLastName(anyString(), any(Pageable.class))).thenReturn(tasks);
-		mockMvc.perform(get("/owners?page=1")).andExpect(status().isOk()).andExpect(view().name("owners/ownersList"));
+		mockMvc.perform(toggleHtmx(get("/owners?page=1"), hxRequest))
+			.andExpect(status().isOk())
+			.andExpect(view().name(expectedViewName));
 	}
 
-	@Test
-	void testProcessFindFormByLastName() throws Exception {
+	@ValueSource(booleans = {false, true})
+	@ParameterizedTest
+	void testProcessFindFormByLastName(boolean hxRequest) throws Exception {
 		Page<Owner> tasks = new PageImpl<Owner>(Lists.newArrayList(george()));
 		Mockito.when(this.owners.findByLastName(eq("Franklin"), any(Pageable.class))).thenReturn(tasks);
-		mockMvc.perform(get("/owners?page=1").param("lastName", "Franklin"))
+		mockMvc.perform(toggleHtmx(get("/owners?page=1"), hxRequest)
+			.param("lastName", "Franklin"))
 			.andExpect(status().is3xxRedirection())
 			.andExpect(view().name("redirect:/owners/" + TEST_OWNER_ID));
 	}
 
-	@Test
-	void testProcessFindFormNoOwnersFound() throws Exception {
+	@CsvSource({
+		"false,owners/findOwners",
+		"true,fragments/owners :: find-form"
+	})
+	@ParameterizedTest
+	void testProcessFindFormNoOwnersFound(boolean hxRequest, String expectedViewName) throws Exception {
 		Page<Owner> tasks = new PageImpl<Owner>(Lists.newArrayList());
 		Mockito.when(this.owners.findByLastName(eq("Unknown Surname"), any(Pageable.class))).thenReturn(tasks);
-		mockMvc.perform(get("/owners?page=1").param("lastName", "Unknown Surname"))
+		mockMvc.perform(toggleHtmx(get("/owners?page=1"), hxRequest).param("lastName", "Unknown Surname"))
 			.andExpect(status().isOk())
 			.andExpect(model().attributeHasFieldErrors("owner", "lastName"))
 			.andExpect(model().attributeHasFieldErrorCode("owner", "lastName", "notFound"))
-			.andExpect(view().name("owners/findOwners"));
+			.andExpect(view().name(expectedViewName));
 
 	}
 
-	@Test
-	void testInitUpdateOwnerForm() throws Exception {
-		mockMvc.perform(get("/owners/{ownerId}/edit", TEST_OWNER_ID))
+	@CsvSource({
+		"false,owners/createOrUpdateOwnerForm",
+		"true,fragments/owners :: edit"
+	})
+	@ParameterizedTest
+	void testInitUpdateOwnerForm(boolean hxRequest, String expectedViewName) throws Exception {
+		mockMvc.perform(toggleHtmx(get("/owners/{ownerId}/edit", TEST_OWNER_ID), hxRequest))
 			.andExpect(status().isOk())
 			.andExpect(model().attributeExists("owner"))
 			.andExpect(model().attribute("owner", hasProperty("lastName", is("Franklin"))))
@@ -174,13 +212,15 @@ class OwnerControllerTests {
 			.andExpect(model().attribute("owner", hasProperty("address", is("110 W. Liberty St."))))
 			.andExpect(model().attribute("owner", hasProperty("city", is("Madison"))))
 			.andExpect(model().attribute("owner", hasProperty("telephone", is("6085551023"))))
-			.andExpect(view().name("owners/createOrUpdateOwnerForm"));
+			.andExpect(view().name(expectedViewName));
 	}
 
-	@Test
-	void testProcessUpdateOwnerFormSuccess() throws Exception {
+	@ValueSource(booleans = {false, true})
+	@ParameterizedTest
+	void testProcessUpdateOwnerFormSuccess(boolean hxRequest) throws Exception {
 		mockMvc
-			.perform(post("/owners/{ownerId}/edit", TEST_OWNER_ID).param("firstName", "Joe")
+			.perform(toggleHtmx(post("/owners/{ownerId}/edit", TEST_OWNER_ID), hxRequest)
+				.param("firstName", "Joe")
 				.param("lastName", "Bloggs")
 				.param("address", "123 Caramel Street")
 				.param("city", "London")
@@ -189,17 +229,23 @@ class OwnerControllerTests {
 			.andExpect(view().name("redirect:/owners/{ownerId}"));
 	}
 
-	@Test
-	void testProcessUpdateOwnerFormUnchangedSuccess() throws Exception {
-		mockMvc.perform(post("/owners/{ownerId}/edit", TEST_OWNER_ID))
+	@ValueSource(booleans = {false, true})
+	@ParameterizedTest
+	void testProcessUpdateOwnerFormUnchangedSuccess(boolean hxRequest) throws Exception {
+		mockMvc.perform(toggleHtmx(post("/owners/{ownerId}/edit", TEST_OWNER_ID), hxRequest))
 			.andExpect(status().is3xxRedirection())
 			.andExpect(view().name("redirect:/owners/{ownerId}"));
 	}
 
-	@Test
-	void testProcessUpdateOwnerFormHasErrors() throws Exception {
+	@CsvSource({
+		"false,owners/createOrUpdateOwnerForm",
+		"true,fragments/owners :: edit"
+	})
+	@ParameterizedTest
+	void testProcessUpdateOwnerFormHasErrors(boolean hxRequest, String expectedViewName) throws Exception {
 		mockMvc
-			.perform(post("/owners/{ownerId}/edit", TEST_OWNER_ID).param("firstName", "Joe")
+			.perform(toggleHtmx(post("/owners/{ownerId}/edit", TEST_OWNER_ID), hxRequest)
+				.param("firstName", "Joe")
 				.param("lastName", "Bloggs")
 				.param("address", "")
 				.param("telephone", ""))
@@ -207,12 +253,16 @@ class OwnerControllerTests {
 			.andExpect(model().attributeHasErrors("owner"))
 			.andExpect(model().attributeHasFieldErrors("owner", "address"))
 			.andExpect(model().attributeHasFieldErrors("owner", "telephone"))
-			.andExpect(view().name("owners/createOrUpdateOwnerForm"));
+			.andExpect(view().name(expectedViewName));
 	}
 
-	@Test
-	void testShowOwner() throws Exception {
-		mockMvc.perform(get("/owners/{ownerId}", TEST_OWNER_ID))
+	@CsvSource({
+		"false,owners/ownerDetails",
+		"true,fragments/owners :: details"
+	})
+	@ParameterizedTest
+	void testShowOwner(boolean hxRequest, String expectedViewName) throws Exception {
+		mockMvc.perform(toggleHtmx(get("/owners/{ownerId}", TEST_OWNER_ID), hxRequest))
 			.andExpect(status().isOk())
 			.andExpect(model().attribute("owner", hasProperty("lastName", is("Franklin"))))
 			.andExpect(model().attribute("owner", hasProperty("firstName", is("George"))))
@@ -238,7 +288,7 @@ class OwnerControllerTests {
 					description.appendText("Max did not have any visits");
 				}
 			})))
-			.andExpect(view().name("owners/ownerDetails"));
+			.andExpect(view().name(expectedViewName));
 	}
 
 }

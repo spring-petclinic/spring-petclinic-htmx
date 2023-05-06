@@ -67,16 +67,16 @@ class OwnerController {
 
 	@GetMapping("/owners/new")
 	public String initCreationForm(Map<String, Object> model) {
-		return handleCreationForm(model, VIEWS_OWNER_CREATE_OR_UPDATE_FORM);
+		return handleInitCreationForm(model, VIEWS_OWNER_CREATE_OR_UPDATE_FORM);
 	}
 
 	@HxRequest
 	@GetMapping("/owners/new")
 	public String htmxInitCreationForm(Map<String, Object> model) {
-		return handleCreationForm(model, "fragments/owners :: edit");
+		return handleInitCreationForm(model, "fragments/owners :: edit");
 	}
 
-	protected String handleCreationForm(Map<String, Object> model, String view) {
+	protected String handleInitCreationForm(Map<String, Object> model, String view) {
 		Owner owner = new Owner();
 		model.put("owner", owner);
 		return view;
@@ -84,8 +84,18 @@ class OwnerController {
 
 	@PostMapping("/owners/new")
 	public String processCreationForm(@Valid Owner owner, BindingResult result) {
+		return handleProcessCreationForm(owner, result, VIEWS_OWNER_CREATE_OR_UPDATE_FORM);
+	}
+
+	@HxRequest
+	@PostMapping("/owners/new")
+	public String htmxProcessCreationForm(@Valid Owner owner, BindingResult result) {
+		return handleProcessCreationForm(owner, result, "fragments/owners :: edit");
+	}
+
+	protected String handleProcessCreationForm(@Valid Owner owner, BindingResult result, String errorView) {
 		if (result.hasErrors()) {
-			return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
+			return errorView;
 		}
 
 		this.owners.save(owner);
