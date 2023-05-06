@@ -17,14 +17,13 @@ package org.springframework.samples.petclinic.owner;
 
 import java.util.Map;
 
+import io.github.wimdeblauwe.hsbt.mvc.HxRequest;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 
@@ -75,6 +74,13 @@ class VisitController {
 	@GetMapping("/owners/{ownerId}/pets/{petId}/visits/new")
 	public String initNewVisitForm() {
 		return "pets/createOrUpdateVisitForm";
+	}
+
+	@HxRequest
+	@GetMapping("/owners/{ownerId}/pets/{petId}/visits/new")
+	public String htmxInitNewVisitForm(HttpServletRequest request, HttpServletResponse response) {
+		response.addHeader("HX-Push-Url", request.getServletPath());
+		return "fragments/pets :: visits";
 	}
 
 	// Spring MVC calls method loadPetWithVisit(...) before processNewVisitForm is
