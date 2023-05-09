@@ -2,7 +2,7 @@
   <h2>Find Owners</h2>
 
   <form th:object="${owner}" th:action="@{/owners}" method="get"
-        hx:get="@{/owners}" hx:swap="innerHTML" hx:target="${'#block-content'}"
+        hx:get="@{/owners}" hx-swap="innerHTML" hx-target="#block-content"
         class="form-horizontal" id="search-owner-form">
     <div class="form-group">
       <div class="control-group" id="lastNameGroup">
@@ -24,7 +24,7 @@
       </div>
     </div>
 
-    <a class="btn btn-primary" hx:get="@{/owners/new}" hx:swap="innerHTML" hx:target="${'#block-content'}"
+    <a class="btn btn-primary" hx:get="@{/owners/new}" hx-swap="innerHTML" hx-target="#block-content"
        hx:push-url="@{/owners/new}" th:href="@{/owners/new}">Add Owner</a>
 
   </form>
@@ -47,7 +47,7 @@
     <tr th:each="owner : ${listOwners}">
       <td>
         <a th:href="@{/owners/__${owner.id}__}" th:text="${owner.firstName + ' ' + owner.lastName}"
-           th:attr="hx-get=@{/owners/__${owner.id}__}" hx:target="${'#block-content'}"/></a>
+           th:attr="hx-get=@{/owners/__${owner.id}__}" hx-target="#block-content"/></a>
       </td>
       <td th:text="${owner.address}"/>
       <td th:text="${owner.city}"/>
@@ -83,10 +83,10 @@
     </tr>
   </table>
 
-  <a th:attr="hx-get=@{__${owner.id}__/edit}" hx:target="${'#block-content'}" th:href="@{__${owner.id}__/edit}"
+  <a th:attr="hx-get=@{__${owner.id}__/edit}" hx-target="#block-content" th:href="@{__${owner.id}__/edit}"
      class="btn btn-primary">Edit
     Owner</a>
-  <a th:attr="hx-get=@{__${owner.id}__/pets/new}" th:href="@{__${owner.id}__/pets/new}" hx:target="${'#block-content'}" class="btn btn-primary">Add
+  <a th:attr="hx-get=@{__${owner.id}__/pets/new}" th:href="@{__${owner.id}__/pets/new}" hx-target="#block-content" class="btn btn-primary">Add
     New Pet</a>
 </div>
 
@@ -122,9 +122,9 @@
           </tr>
           <tr>
             <td><a th:href="@{__${owner.id}__/pets/__${pet.id}__/edit}"
-                   th:attr="hx-get=@{__${owner.id}__/pets/__${pet.id}__/edit}">Edit Pet</a></td>
+                   th:attr="hx-get=@{__${owner.id}__/pets/__${pet.id}__/edit}" hx-target="#block-content">Edit Pet</a></td>
             <td><a th:href="@{__${owner.id}__/pets/__${pet.id}__/visits/new}"
-                   th:attr="hx-get=@{__${owner.id}__/pets/__${pet.id}__/visits/new}">Add Visit</a></td>
+                   th:attr="hx-get=@{__${owner.id}__/pets/__${pet.id}__/visits/new}" hx-target="#block-content">Add Visit</a></td>
           </tr>
         </table>
       </td>
@@ -146,7 +146,7 @@
 <div th:fragment="edit" th:remove="tag">
   <h2>Owner</h2>
   <form th:object="${owner}" hx-post
-        hx:swap="innerHTML" hx:target="${'#block-content'}"
+        hx-swap="innerHTML" hx-target="#block-content"
         class="form-horizontal" id="add-owner-form" method="post">
     <div class="form-group has-feedback">
       <input

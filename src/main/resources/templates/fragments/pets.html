@@ -4,7 +4,7 @@
     Pet
   </h2>
   <form th:object="${pet}" class="form-horizontal" method="post"
-        hx-post hx:swap="innerHTML" hx:target="${'#block-content'}">
+        hx-post hx-swap="innerHTML" hx-target="#block-content">
     <input type="hidden" name="id" th:value="*{id}" />
     <div class="form-group has-feedback">
       <div class="form-group">
@@ -57,7 +57,7 @@
     </tr>
   </table>
 
-  <form th:object="${visit}" class="form-horizontal" hx-post hx:swap="innerHTML" hx:target="${'#block-content'}" method="post">
+  <form th:object="${visit}" class="form-horizontal" hx-post hx-swap="innerHTML" hx-target="#block-content" method="post">
     <div class="form-group has-feedback">
       <input
         th:replace="~{fragments/inputField :: input ('Date', 'date', 'date')}"  />
