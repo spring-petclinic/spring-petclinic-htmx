@@ -6,6 +6,10 @@ This is a version of the Spring PetClinic sample project using [HTMX](https://ht
 
 ![htmx.org](src/main/resources/static/resources/images/htmx_logo.png)
 
+## Demo of the app running
+
+https://www.youtube.com/watch?v=5sJ4GcC6u-A
+
 ## Understanding the Spring Petclinic application with a few diagrams
 <a href="https://speakerdeck.com/michaelisvy/spring-petclinic-sample-application">See the presentation here</a>
 
