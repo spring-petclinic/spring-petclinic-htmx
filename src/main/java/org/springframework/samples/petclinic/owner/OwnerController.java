@@ -50,6 +50,10 @@ class OwnerController {
 
 	private static final String VIEWS_OWNER_CREATE_OR_UPDATE_FORM = "owners/createOrUpdateOwnerForm";
 
+	private static final String FRAGMENTS_OWNERS_EDIT = "fragments/owners :: edit";
+
+	private static final String FRAGMENTS_OWNERS_FIND_FORM = "fragments/owners :: find-form";
+
 	private final OwnerRepository owners;
 
 	public OwnerController(OwnerRepository clinicService) {
@@ -74,7 +78,7 @@ class OwnerController {
 	@HxRequest
 	@GetMapping("/owners/new")
 	public String htmxInitCreationForm(Map<String, Object> model) {
-		return handleInitCreationForm(model, "fragments/owners :: edit");
+		return handleInitCreationForm(model, FRAGMENTS_OWNERS_EDIT);
 	}
 
 	protected String handleInitCreationForm(Map<String, Object> model, String view) {
@@ -91,7 +95,7 @@ class OwnerController {
 	@HxRequest
 	@PostMapping("/owners/new")
 	public String htmxProcessCreationForm(@Valid Owner owner, BindingResult result) {
-		return handleProcessCreationForm(owner, result, "fragments/owners :: edit");
+		return handleProcessCreationForm(owner, result, FRAGMENTS_OWNERS_EDIT);
 	}
 
 	protected String handleProcessCreationForm(@Valid Owner owner, BindingResult result, String errorView) {
@@ -111,7 +115,7 @@ class OwnerController {
 	@HxRequest
 	@GetMapping("/owners/find")
 	public String htmxInitFindForm() {
-		return "fragments/owners :: find-form";
+		return FRAGMENTS_OWNERS_FIND_FORM;
 	}
 
 	@GetMapping("/owners")
@@ -124,7 +128,7 @@ class OwnerController {
 	@GetMapping("/owners")
 	public String htmxOwnersList(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result,
 			Model model, HttpServletResponse response) {
-		return processFindForm(page, owner, result, model, response, "fragments/owners :: find-form",
+		return processFindForm(page, owner, result, model, response, FRAGMENTS_OWNERS_FIND_FORM,
 				"fragments/owners :: list");
 	}
 
@@ -181,7 +185,7 @@ class OwnerController {
 	public String htmxInitUpdateOwnerForm(@PathVariable("ownerId") int ownerId, Model model, HttpServletRequest request,
 			HttpServletResponse response) {
 		response.addHeader("HX-Push-Url", request.getServletPath());
-		return handleInitUpdateOwnerForm(ownerId, model, "fragments/owners :: edit");
+		return handleInitUpdateOwnerForm(ownerId, model, FRAGMENTS_OWNERS_EDIT);
 	}
 
 	protected String handleInitUpdateOwnerForm(int ownerId, Model model, String view) {
@@ -200,7 +204,7 @@ class OwnerController {
 	@PostMapping("/owners/{ownerId}/edit")
 	public String htmxProcessUpdateOwnerForm(@Valid Owner owner, BindingResult result,
 			@PathVariable("ownerId") int ownerId) {
-		return handleProcessUpdateOwnerForm(owner, result, ownerId, "fragments/owners :: edit");
+		return handleProcessUpdateOwnerForm(owner, result, ownerId, FRAGMENTS_OWNERS_EDIT);
 	}
 
 	protected String handleProcessUpdateOwnerForm(Owner owner, BindingResult result, int ownerId, String view) {

@@ -40,6 +40,8 @@ class PetController {
 
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
 
+	private static final String FRAGMENTS_PETS_EDIT = "fragments/pets :: edit";
+
 	private final OwnerRepository owners;
 
 	public PetController(OwnerRepository owners) {
@@ -82,7 +84,7 @@ class PetController {
 	public String htmxInitCreationForm(Owner owner, ModelMap model, HttpServletRequest request,
 			HttpServletResponse response) {
 		response.addHeader("HX-Push-Url", request.getServletPath());
-		return handleInitCreationForm(owner, model, "fragments/pets :: edit");
+		return handleInitCreationForm(owner, model, FRAGMENTS_PETS_EDIT);
 	}
 
 	protected String handleInitCreationForm(Owner owner, ModelMap model, String view) {
@@ -100,7 +102,7 @@ class PetController {
 	@HxRequest
 	@PostMapping("/pets/new")
 	public String htmxProcessCreationForm(Owner owner, @Valid Pet pet, BindingResult result, ModelMap model) {
-		return handleProcessCreationForm(owner, pet, result, model, "fragments/pets :: edit");
+		return handleProcessCreationForm(owner, pet, result, model, FRAGMENTS_PETS_EDIT);
 	}
 
 	protected String handleProcessCreationForm(Owner owner, @Valid Pet pet, BindingResult result, ModelMap model,
@@ -129,7 +131,7 @@ class PetController {
 	public String htmxInitUpdateForm(@PathVariable("ownerId") int ownerId, Owner owner,
 			@PathVariable("petId") int petId, ModelMap model, HttpServletResponse response) {
 		response.addHeader("HX-Push-Url", "/owners/" + ownerId + "/pets/" + petId + "/edit");
-		return handleInitUpdateForm(owner, petId, model, "fragments/pets :: edit");
+		return handleInitUpdateForm(owner, petId, model, FRAGMENTS_PETS_EDIT);
 	}
 
 	protected String handleInitUpdateForm(Owner owner, int petId, ModelMap model, String view) {
@@ -147,7 +149,7 @@ class PetController {
 	@HxRequest
 	@PostMapping("/pets/{petId}/edit")
 	public String htmxProcessUpdateForm(@Valid Pet pet, BindingResult result, Owner owner, ModelMap model) {
-		return handleProcessUpdateForm(pet, result, owner, model, "fragments/pets :: edit");
+		return handleProcessUpdateForm(pet, result, owner, model, FRAGMENTS_PETS_EDIT);
 	}
 
 	protected String handleProcessUpdateForm(@Valid Pet pet, BindingResult result, Owner owner, ModelMap model,

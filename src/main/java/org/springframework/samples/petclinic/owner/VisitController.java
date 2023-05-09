@@ -38,6 +38,8 @@ import jakarta.validation.Valid;
 @Controller
 class VisitController {
 
+	private static final String FRAGMENTS_PETS_VISITS = "fragments/pets :: visits";
+
 	private final OwnerRepository owners;
 
 	public VisitController(OwnerRepository owners) {
@@ -81,7 +83,7 @@ class VisitController {
 	@GetMapping("/owners/{ownerId}/pets/{petId}/visits/new")
 	public String htmxInitNewVisitForm(HttpServletRequest request, HttpServletResponse response) {
 		response.addHeader("HX-Push-Url", request.getServletPath());
-		return "fragments/pets :: visits";
+		return FRAGMENTS_PETS_VISITS;
 	}
 
 	// Spring MVC calls method loadPetWithVisit(...) before processNewVisitForm is
@@ -96,7 +98,7 @@ class VisitController {
 	@PostMapping("/owners/{ownerId}/pets/{petId}/visits/new")
 	public String htmxProcessNewVisitForm(@ModelAttribute Owner owner, @PathVariable int petId, @Valid Visit visit,
 			BindingResult result) {
-		return handleProcessNewVisitForm(owner, petId, visit, result, "fragments/pets :: visits");
+		return handleProcessNewVisitForm(owner, petId, visit, result, FRAGMENTS_PETS_VISITS);
 	}
 
 	protected String handleProcessNewVisitForm(@ModelAttribute Owner owner, @PathVariable int petId, @Valid Visit visit,
