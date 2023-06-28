@@ -8,7 +8,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.1.0</version>
+    <version>3.1.1</version>
   </parent>
   <name>petclinic-htmx</name>
 
@@ -29,8 +29,8 @@
 
     <jacoco.version>0.8.8</jacoco.version>
     <nohttp-checkstyle.version>0.0.11</nohttp-checkstyle.version>
-    <spring-format.version>0.0.38</spring-format.version>
-    <htmx-spring-boot-thymeleaf.version>2.0.0</htmx-spring-boot-thymeleaf.version>
+    <spring-format.version>0.0.39</spring-format.version>
+    <htmx-spring-boot-thymeleaf.version>2.0.1</htmx-spring-boot-thymeleaf.version>
 
   </properties>
 
