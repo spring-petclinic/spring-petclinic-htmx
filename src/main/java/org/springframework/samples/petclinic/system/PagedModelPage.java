@@ -62,8 +62,9 @@ public class PagedModelPage<T> extends BasePage {
 	}
 
 	public List<PageModel> pages() {
-		return IntStream.range(1, paginated.getTotalPages() + 1).mapToObj(value -> new PageModel(value == page, value))
-				.collect(Collectors.toList());
+		return IntStream.range(1, paginated.getTotalPages() + 1)
+			.mapToObj(value -> new PageModel(value == page, value))
+			.collect(Collectors.toList());
 	}
 
 	public static record PageModel(boolean current, int number) {
