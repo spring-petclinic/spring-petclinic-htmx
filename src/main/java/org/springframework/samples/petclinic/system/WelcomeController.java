@@ -16,9 +16,10 @@
 
 package org.springframework.samples.petclinic.system;
 
-import io.github.wimdeblauwe.hsbt.mvc.HxRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+
+import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
 
 @Controller
 class WelcomeController {
