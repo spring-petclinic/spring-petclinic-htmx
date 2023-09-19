@@ -1,9 +1,10 @@
 package org.springframework.samples.petclinic.system;
 
-import io.github.wimdeblauwe.hsbt.mvc.HtmxRequest;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxRequest;
 
 /**
  * Controller advice that returns a special fragment in case the request was coming from
