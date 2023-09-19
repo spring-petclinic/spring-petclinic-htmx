@@ -20,12 +20,18 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ImportRuntimeHints;
 
+import io.jstach.jstache.JStacheFlags;
+import io.jstach.jstache.JStacheFlags.Flag;
+import io.jstach.jstache.JStachePath;
+
 /**
  * PetClinic Spring Boot Application.
  *
  * @author Dave Syer
  *
  */
+@JStachePath(prefix = "templates/", suffix = ".mustache")
+@JStacheFlags(flags = Flag.DEBUG)
 @SpringBootApplication
 @ImportRuntimeHints(PetClinicRuntimeHints.class)
 public class PetClinicApplication {
