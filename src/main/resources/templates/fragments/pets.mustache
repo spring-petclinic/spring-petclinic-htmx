@@ -5,7 +5,6 @@
   </h2>
 {{/pet}}
   <form class="form-horizontal" method="post" hx-post hx-swap="innerHTML" hx-target="#block-content">
-    <input type="hidden" name="id" th:value="*{id}" />
     <div class="form-group has-feedback">
       <div class="form-group">
         <label class="col-sm-2 control-label">Owner</label>
@@ -16,6 +15,7 @@
         </div>
       </div>
       {{#form}}
+        {{#pet}}<input type="hidden" name="id" value="{{id}}"/>{{/pet}}
         {{#nameField}}{{<inputField}}Name <input name="name"/>{{/inputField}}{{/nameField}}
         {{#birthDate}}{{<inputField}}Birth Date <input name="birthDate" type="date"/>{{/inputField}}{{/birthDate}}
         {{#type}}{{<inputField}}Type <input name="type" values="types"/>{{/inputField}}{{/type}}
