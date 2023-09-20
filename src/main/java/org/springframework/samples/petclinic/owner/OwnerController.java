@@ -119,8 +119,8 @@ class OwnerController {
 
 	@HxRequest
 	@GetMapping("/owners/find")
-	public String htmxInitFindForm() {
-		return FRAGMENTS_OWNERS_FIND_FORM;
+	public View htmxInitFindForm(Owner owner) {
+		return JStachioModelView.of(new FindOwnerForm(owner));
 	}
 
 	@GetMapping("/owners")
@@ -248,21 +248,33 @@ class OwnerController {
 
 }
 
-@JStache(path = "owners/findOwners")
-class FindOwnerPage extends BasePage {
+@JStache(path = "fragments/owners#findForm")
+class FindOwnerForm extends BasePage {
 
-	final Owner owner;
+	private final Owner owner;
 
-	FindOwnerPage(Owner owner) {
+	FindOwnerForm(Owner owner) {
 		this.owner = owner;
 	}
 
-	Form form() {
+	public Form form() {
 		return new Form("owner", this.owner);
 	}
 
-	String[] errors() {
+	public String[] errors() {
 		return status("owner").getErrorMessages();
 	}
 
+	public Owner getOwner() {
+		return owner;
+	}
+
+}
+
+@JStache(path = "owners/findOwners")
+class FindOwnerPage extends FindOwnerForm {
+
+	FindOwnerPage(Owner owner) {
+		super(owner);
+	}
 }
