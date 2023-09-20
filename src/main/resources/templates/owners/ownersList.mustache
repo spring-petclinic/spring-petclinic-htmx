@@ -7,60 +7,11 @@
 
 {{<fragments/layout}}{{$menu}}owners{{/menu}}{{$body}}
 
-    <h2>Owners</h2>
+  <div id="block-content">
 
-    <table id="owners" class="table table-striped">
-        <thead>
-        <tr>
-            <th style="width: 150px;">Name</th>
-            <th style="width: 200px;">Address</th>
-            <th>City</th>
-            <th style="width: 120px">Telephone</th>
-            <th>Pets</th>
-        </tr>
-        </thead>
-        <tbody>
-          {{#listOwners}}<tr>
-              <td>
-                  <a href="/owners/{{id}}">{{firstName}} {{lastName}}</a>
-              </td>
-              <td>{{address}}</td>
-              <td>{{city}}</td>
-              <td>{{telephone}}</td>
-              <td>{{#pets}}<span>{{name}}</span> {{/pets}}</td>
-          </tr>{{/listOwners}}
-        </tbody>
-    </table>
+    {{<fragments/owners#list}}{{/fragments/owners#list}}
 
-    {{#hasPages}}<div>
-        <span>Pages:</span>
-        <span>[</span>
-        {{#pages}}<span">
-            {{^current}}<a href="/owners?page={{number}}">{{number}}</a>{{/current}}
-            {{#current}}<span>{{number}}</span>{{/current}}
-        </span>{{/pages}}
-        <span>]&nbsp;</span>
-        <span>
-            {{^first}}<a href="/owners?page=1" title="First"
-                class="fa fa-fast-backward"></a>{{/first}}
-            {{#first}}<span title="First" class="fa fa-fast-backward"></span>{{/first}}
-        </span>
-        <span>
-            {{^first}}<a href="/owners?page={{previous}}" title="Previous"
-                class="fa fa-step-backward"></a>{{/first}}
-            {{#first}}<span title="Previous" class="fa fa-step-backward"></span>{{/first}}
-        </span>
-        <span>
-            {{^last}}<a href="/owners?page={{next}}" title="Next"
-                class="fa fa-step-forward"></a>{{/last}}
-            {{#last}}<span title="Next" class="fa fa-step-forward"></span>{{/last}}
-        </span>
-        <span>
-            {{^last}}<a href="/owners?page={{totalPages}}" title="Last"
-                class="fa fa-fast-forward"></a>{{/last}}
-            {{#last}}<span title="Last" class="fa fa-fast-forward"></span>{{/last}}
-        </span>
-    </div>{{/hasPages}}
+  </div>
 
 {{/body}}{{/fragments/layout}}
 

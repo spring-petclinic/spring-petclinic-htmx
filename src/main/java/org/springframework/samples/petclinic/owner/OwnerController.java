@@ -23,6 +23,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.samples.petclinic.system.BasePage;
 import org.springframework.samples.petclinic.system.Form;
+import org.springframework.samples.petclinic.system.PagedModelPage;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -35,6 +36,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
+import org.springframework.web.servlet.view.RedirectView;
 
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
 import io.jstach.jstache.JStache;
@@ -124,21 +126,17 @@ class OwnerController {
 	}
 
 	@GetMapping("/owners")
-	public String ownersList(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result, Model model,
-			HttpServletResponse response) {
-		return processFindForm(page, owner, result, model, response, "owners/findOwners", "owners/ownersList");
+	public View ownersList(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result) {
+		return processFindForm(page, owner, result, false);
 	}
 
 	@HxRequest
 	@GetMapping("/owners")
-	public String htmxOwnersList(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result,
-			Model model, HttpServletResponse response) {
-		return processFindForm(page, owner, result, model, response, FRAGMENTS_OWNERS_FIND_FORM,
-				"fragments/owners :: list");
+	public View htmxOwnersList(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result) {
+		return processFindForm(page, owner, result, true);
 	}
 
-	public String processFindForm(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result,
-			Model model, HttpServletResponse response, String emptyView, String listView) {
+	public View processFindForm(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result, boolean fragment) {
 		// allow parameterless GET request for /owners to return all records
 		if (owner.getLastName() == null) {
 			owner.setLastName(""); // empty string signifies broadest possible search
@@ -149,29 +147,17 @@ class OwnerController {
 		if (ownersResults.isEmpty()) {
 			// no owners found
 			result.rejectValue("lastName", "notFound", "not found");
-			return emptyView;
+			return JStachioModelView.of(fragment ? new FindOwnerForm(owner) : new FindOwnerPage(owner));
 		}
 
 		if (ownersResults.getTotalElements() == 1) {
 			// 1 owner found
 			owner = ownersResults.iterator().next();
-			return "redirect:/owners/" + owner.getId();
+			return new RedirectView("/owners/" + owner.getId());
 		}
 
 		// multiple owners found
-		return addPaginationModel(owner.getLastName(), page, model, ownersResults, response, listView);
-	}
-
-	private String addPaginationModel(String lastName, int page, Model model, Page<Owner> paginated,
-			HttpServletResponse response, String listView) {
-		model.addAttribute("listOwners", paginated);
-		List<Owner> listOwners = paginated.getContent();
-		model.addAttribute("currentPage", page);
-		model.addAttribute("totalPages", paginated.getTotalPages());
-		model.addAttribute("totalItems", paginated.getTotalElements());
-		model.addAttribute("listOwners", listOwners);
-		response.addHeader("HX-Push-Url", "/owners?lastName=" + lastName + "&page=" + page);
-		return listView;
+		return fragment ? JStachioModelView.of(new OwnersList(page, ownersResults)) : JStachioModelView.of(new OwnersPage(page, ownersResults));
 	}
 
 	private Page<Owner> findPaginatedForOwnersLastName(int page, String lastname) {
@@ -277,4 +263,27 @@ class FindOwnerPage extends FindOwnerForm {
 	FindOwnerPage(Owner owner) {
 		super(owner);
 	}
+}
+
+
+@JStache(path = "fragments/owners#list")
+class OwnersList extends PagedModelPage<Owner> {
+
+	OwnersList(int page, Page<Owner> paginated) {
+		super(page, paginated);
+	}
+
+	public List<Owner> listOwners() {
+		return list();
+	}
+
+}
+
+@JStache(path = "owners/ownersList")
+class OwnersPage extends OwnersList {
+
+	OwnersPage(int page, Page<Owner> paginated) {
+		super(page, paginated);
+	}
+
 }
