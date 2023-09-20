@@ -21,6 +21,8 @@ import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.samples.petclinic.system.BasePage;
+import org.springframework.samples.petclinic.system.Form;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -32,8 +34,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.View;
 
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
+import io.jstach.jstache.JStache;
+import io.jstach.opt.spring.webmvc.JStachioModelView;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -108,8 +113,8 @@ class OwnerController {
 	}
 
 	@GetMapping("/owners/find")
-	public String initFindForm() {
-		return "owners/findOwners";
+	public View initFindForm(Owner owner) {
+		return JStachioModelView.of(new FindOwnerPage(owner));
 	}
 
 	@HxRequest
@@ -239,6 +244,25 @@ class OwnerController {
 		Owner owner = this.owners.findById(ownerId);
 		mav.addObject(owner);
 		return mav;
+	}
+
+}
+
+@JStache(path = "owners/findOwners")
+class FindOwnerPage extends BasePage {
+
+	final Owner owner;
+
+	FindOwnerPage(Owner owner) {
+		this.owner = owner;
+	}
+
+	Form form() {
+		return new Form("owner", this.owner);
+	}
+
+	String[] errors() {
+		return status("owner").getErrorMessages();
 	}
 
 }
