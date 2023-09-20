@@ -84,7 +84,7 @@
 
 {{#editForm}}
 <h2>Owner</h2>
-<form class="form-horizontal" id="add-owner-form" method="post">
+<form class="form-horizontal" id="add-owner-form" method="post" hx-post hx-swap="innerHTML" hx-target="#block-content">
 {{#form}}
 <div class="form-group has-feedback">
 	{{#firstName}}{{<inputField}}First Name <input name="firstName"/>{{/inputField}}{{/firstName}}

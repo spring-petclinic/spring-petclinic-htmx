@@ -55,10 +55,6 @@ import jakarta.validation.Valid;
 @Controller
 class OwnerController {
 
-	private static final String VIEWS_OWNER_CREATE_OR_UPDATE_FORM = "owners/createOrUpdateOwnerForm";
-
-	private static final String FRAGMENTS_OWNERS_EDIT = "fragments/owners :: edit";
-
 	private final OwnerRepository owners;
 
 	public OwnerController(OwnerRepository clinicService) {
@@ -87,23 +83,24 @@ class OwnerController {
 	}
 
 	@PostMapping("/owners/new")
-	public String processCreationForm(@Valid Owner owner, BindingResult result) {
-		return handleProcessCreationForm(owner, result, VIEWS_OWNER_CREATE_OR_UPDATE_FORM);
+	public View processCreationForm(@Valid Owner owner, BindingResult result) {
+		return handleProcessCreationForm(owner, result, false);
 	}
 
 	@HxRequest
 	@PostMapping("/owners/new")
-	public String htmxProcessCreationForm(@Valid Owner owner, BindingResult result) {
-		return handleProcessCreationForm(owner, result, FRAGMENTS_OWNERS_EDIT);
+	public View htmxProcessCreationForm(@Valid Owner owner, BindingResult result) {
+		return handleProcessCreationForm(owner, result, true);
 	}
 
-	protected String handleProcessCreationForm(@Valid Owner owner, BindingResult result, String errorView) {
+	protected View handleProcessCreationForm(@Valid Owner owner, BindingResult result, boolean fragment) {
 		if (result.hasErrors()) {
-			return errorView;
+			return fragment ? JStachioModelView.of(new EditOwnerForm(owner))
+					: JStachioModelView.of(new EditOwnerPage(owner));
 		}
 
 		this.owners.save(owner);
-		return "redirect:/owners/" + owner.getId();
+		return new RedirectView("/owners/" + owner.getId());
 	}
 
 	@GetMapping("/owners/find")
@@ -176,26 +173,26 @@ class OwnerController {
 	}
 
 	@PostMapping("/owners/{ownerId}/edit")
-	public String processUpdateOwnerForm(@Valid Owner owner, BindingResult result,
-			@PathVariable("ownerId") int ownerId) {
-		return handleProcessUpdateOwnerForm(owner, result, ownerId, VIEWS_OWNER_CREATE_OR_UPDATE_FORM);
+	public View processUpdateOwnerForm(@Valid Owner owner, BindingResult result, @PathVariable("ownerId") int ownerId) {
+		return handleProcessUpdateOwnerForm(owner, result, ownerId, false);
 	}
 
 	@HxRequest
 	@PostMapping("/owners/{ownerId}/edit")
-	public String htmxProcessUpdateOwnerForm(@Valid Owner owner, BindingResult result,
+	public View htmxProcessUpdateOwnerForm(@Valid Owner owner, BindingResult result,
 			@PathVariable("ownerId") int ownerId) {
-		return handleProcessUpdateOwnerForm(owner, result, ownerId, FRAGMENTS_OWNERS_EDIT);
+		return handleProcessUpdateOwnerForm(owner, result, ownerId, true);
 	}
 
-	protected String handleProcessUpdateOwnerForm(Owner owner, BindingResult result, int ownerId, String view) {
+	protected View handleProcessUpdateOwnerForm(Owner owner, BindingResult result, int ownerId, boolean fragment) {
 		if (result.hasErrors()) {
-			return view;
+			return fragment ? JStachioModelView.of(new EditOwnerForm(owner))
+					: JStachioModelView.of(new EditOwnerPage(owner));
 		}
 
 		owner.setId(ownerId);
 		this.owners.save(owner);
-		return "redirect:/owners/{ownerId}";
+		return new RedirectView("/owners/" + owner.getId());
 	}
 
 	/**

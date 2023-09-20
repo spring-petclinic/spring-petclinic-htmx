@@ -40,7 +40,7 @@ public class Visit extends BaseEntity {
 	private LocalDate date;
 
 	@NotEmpty
-	private String description;
+	private String description = "";
 
 	/**
 	 * Creates a new instance of Visit for the current date

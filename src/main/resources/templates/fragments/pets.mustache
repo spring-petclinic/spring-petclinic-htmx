@@ -1,0 +1,87 @@
+{{#edit}}
+{{#pet}}
+  <h2>
+    {{#new}}New {{/new}}Pet
+  </h2>
+{{/pet}}
+  <form class="form-horizontal" method="post" hx-post hx-swap="innerHTML" hx-target="#block-content">
+    <input type="hidden" name="id" th:value="*{id}" />
+    <div class="form-group has-feedback">
+      <div class="form-group">
+        <label class="col-sm-2 control-label">Owner</label>
+        <div class="col-sm-10">
+{{#pet}}
+          {{#owner}}<span>{{firstName}} {{lastName}}</span>{{/owner}}
+{{/pet}}
+        </div>
+      </div>
+      {{#form}}
+        {{#nameField}}{{<inputField}}Name <input name="name"/>{{/inputField}}{{/nameField}}
+        {{#birthDate}}{{<inputField}}Birth Date <input name="birthDate" type="date"/>{{/inputField}}{{/birthDate}}
+        {{#type}}{{<inputField}}Type <input name="type" values="types"/>{{/inputField}}{{/type}}
+      {{/form}}
+    </div>
+{{#pet}}
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <button class="btn btn-primary" type="submit">{{#new}}Add{{/new}}{{^new}}Update{{/new}}
+          Pet</button>
+      </div>
+    </div>
+{{/pet}}
+  </form>
+{{/edit}}
+
+{{#visits}}
+  <h2>
+    {{#visit.new}}New {{/visit.new}} Visit
+  </h2>
+
+{{#pet}}
+  <b>Pet</b>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Birth Date</th>
+        <th>Type</th>
+        <th>Owner</th>
+      </tr>
+    </thead>
+    <tr>
+      <td>{{name}}</td>
+      <td>{{birthDate}}</td>
+      <td>{{type}}</td>
+      {{#owner}}<td>{{owner.firstName}} {{lastName}}</td>{{/owner}}
+    </tr>
+  </table>
+{{/pet}}
+
+  <form class="form-horizontal" method="post" hx-post hx-swap="innerHTML" hx-target="#block-content">
+    <div class="form-group has-feedback">
+      {{#form}}
+        {{#date}}{{<inputField}}Date <input name="date" type="date"/>{{/inputField}}{{/date}}
+        {{#description}}{{<inputField}}Description <input name="description"/>{{/inputField}}{{/description}}
+      {{/form}}
+    </div>
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <input type="hidden" name="petId" th:value="${pet.id}" />
+        <button class="btn btn-primary" type="submit">Add Visit</button>
+      </div>
+    </div>
+  </form>
+
+  <br />
+  <b>Previous Visits</b>
+  <table class="table table-striped">
+    <tr>
+      <th>Date</th>
+      <th>Description</th>
+    </tr>
+    {{#pet.visits}}{{^new}}<tr>
+      <td>{{date}}</td>
+      <td>{{description}}</td>
+    </tr>{{/new}}{{/pet.visits}}
+  </table>
+{{/visits}}

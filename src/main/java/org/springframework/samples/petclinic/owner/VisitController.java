@@ -17,6 +17,9 @@ package org.springframework.samples.petclinic.owner;
 
 import java.util.Map;
 
+import org.springframework.samples.petclinic.system.BasePage;
+import org.springframework.samples.petclinic.system.Form;
+import org.springframework.samples.petclinic.system.InputField;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
@@ -25,8 +28,14 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.View;
+import org.springframework.web.servlet.view.RedirectView;
 
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
+import io.jstach.jstache.JStache;
+import io.jstach.jstache.JStachePartial;
+import io.jstach.jstache.JStachePartials;
+import io.jstach.opt.spring.webmvc.JStachioModelView;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -41,8 +50,6 @@ import jakarta.validation.Valid;
  */
 @Controller
 class VisitController {
-
-	private static final String FRAGMENTS_PETS_VISITS = "fragments/pets :: visits";
 
 	private final OwnerRepository owners;
 
@@ -79,41 +86,99 @@ class VisitController {
 	// Spring MVC calls method loadPetWithVisit(...) before initNewVisitForm is
 	// called
 	@GetMapping("/owners/{ownerId}/pets/{petId}/visits/new")
-	public String initNewVisitForm() {
-		return "pets/createOrUpdateVisitForm";
+	public View initNewVisitForm(Owner owner, Pet pet, Visit visit) {
+		return JStachioModelView.of(new VisitPage(owner, pet, visit));
 	}
 
 	@HxRequest
 	@GetMapping("/owners/{ownerId}/pets/{petId}/visits/new")
-	public String htmxInitNewVisitForm(HttpServletRequest request, HttpServletResponse response) {
+	public View htmxInitNewVisitForm(Owner owner, Pet pet, @Valid Visit visit, HttpServletRequest request,
+			HttpServletResponse response) {
 		response.addHeader("HX-Push-Url", request.getServletPath());
-		return FRAGMENTS_PETS_VISITS;
+		return JStachioModelView.of(new VisitForm(owner, pet, visit));
 	}
 
 	// Spring MVC calls method loadPetWithVisit(...) before processNewVisitForm is
 	// called
 	@PostMapping("/owners/{ownerId}/pets/{petId}/visits/new")
-	public String processNewVisitForm(@ModelAttribute Owner owner, @PathVariable int petId, @Valid Visit visit,
-			BindingResult result) {
-		return handleProcessNewVisitForm(owner, petId, visit, result, "pets/createOrUpdateVisitForm");
+	public View processNewVisitForm(Owner owner, Pet pet, @Valid Visit visit, BindingResult result) {
+		if (result.hasErrors()) {
+			return initNewVisitForm(owner, pet, visit);
+		}
+
+		owner.addVisit(pet.getId(), visit);
+		this.owners.save(owner);
+		return new RedirectView("/owners" + owner.getId());
 	}
 
 	@HxRequest
 	@PostMapping("/owners/{ownerId}/pets/{petId}/visits/new")
-	public String htmxProcessNewVisitForm(@ModelAttribute Owner owner, @PathVariable int petId, @Valid Visit visit,
+	public View htmxProcessNewVisitForm(@ModelAttribute Owner owner, Pet pet, @Valid Visit visit,
 			BindingResult result) {
-		return handleProcessNewVisitForm(owner, petId, visit, result, FRAGMENTS_PETS_VISITS);
-	}
-
-	protected String handleProcessNewVisitForm(@ModelAttribute Owner owner, @PathVariable int petId, @Valid Visit visit,
-			BindingResult result, String errorView) {
 		if (result.hasErrors()) {
-			return errorView;
+			return initNewVisitForm(owner, pet, visit);
 		}
 
-		owner.addVisit(petId, visit);
+		owner.addVisit(pet.getId(), visit);
 		this.owners.save(owner);
-		return "redirect:/owners/{ownerId}";
+		return new RedirectView("/owners" + owner.getId());
+	}
+
+}
+
+@JStache(path = "pets/createOrUpdateVisitForm")
+@JStachePartials(@JStachePartial(name = "inputField", path = "fragments/inputField"))
+class VisitPage extends VisitForm {
+
+	VisitPage(Owner owner, Pet pet, Visit visit) {
+		super(owner, pet, visit);
+	}
+
+}
+
+@JStache(path = "fragments/pets#visits")
+@JStachePartials(@JStachePartial(name = "inputField", path = "fragments/inputField"))
+class VisitForm extends BasePage {
+
+	final Owner owner;
+
+	final Pet pet;
+
+	final Visit visit;
+
+	VisitForm(Owner owner, Pet pet, Visit visit) {
+		this.owner = owner;
+		this.pet = pet;
+		this.visit = visit;
+	}
+
+	public Visit getVisit() {
+		return visit;
+	}
+
+	public Owner getOwner() {
+		return owner;
+	}
+
+	public Pet getPet() {
+		return pet;
+	}
+
+	public Form form() {
+		return new Form("visit", this.pet);
+	}
+
+	public String[] errors() {
+		return status("visit").getErrorMessages();
+	}
+
+	public InputField date() {
+		return new InputField("Date", "date", this.visit.getDate().toString(), "date", status("visit", "date"));
+	}
+
+	public InputField description() {
+		return new InputField("Description", "description", this.visit.getDescription(), "text",
+				status("visit", "description"));
 	}
 
 }
