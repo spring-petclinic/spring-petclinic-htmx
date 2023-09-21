@@ -34,7 +34,7 @@ public class BaseEntity implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer id;
+	private Integer id = -1;
 
 	public Integer getId() {
 		return id;
@@ -45,7 +45,7 @@ public class BaseEntity implements Serializable {
 	}
 
 	public boolean isNew() {
-		return this.id == null;
+		return this.id == -1;
 	}
 
 }
