@@ -30,8 +30,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
 /**
@@ -87,9 +85,7 @@ class PetController {
 
 	@HxRequest
 	@GetMapping("/pets/new")
-	public String htmxInitCreationForm(Owner owner, ModelMap model, HttpServletRequest request,
-			HttpServletResponse response) {
-		response.addHeader("HX-Push-Url", request.getServletPath());
+	public String htmxInitCreationForm(Owner owner, ModelMap model) {
 		return handleInitCreationForm(owner, model, FRAGMENTS_PETS_EDIT);
 	}
 
@@ -135,8 +131,7 @@ class PetController {
 	@HxRequest
 	@GetMapping("/pets/{petId}/edit")
 	public String htmxInitUpdateForm(@PathVariable("ownerId") int ownerId, Owner owner,
-			@PathVariable("petId") int petId, ModelMap model, HttpServletResponse response) {
-		response.addHeader("HX-Push-Url", "/owners/" + ownerId + "/pets/" + petId + "/edit");
+			@PathVariable("petId") int petId, ModelMap model) {
 		return handleInitUpdateForm(owner, petId, model, FRAGMENTS_PETS_EDIT);
 	}
 

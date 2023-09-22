@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxResponse;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -121,19 +122,20 @@ class OwnerController {
 	@GetMapping("/owners")
 	public String ownersList(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result, Model model,
 			HttpServletResponse response) {
-		return processFindForm(page, owner, result, model, response, "owners/findOwners", "owners/ownersList");
+		return processFindForm(page, owner, result, model, "owners/findOwners", "owners/ownersList");
 	}
 
 	@HxRequest
 	@GetMapping("/owners")
-	public String htmxOwnersList(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result,
+	public HtmxResponse htmxOwnersList(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result,
 			Model model, HttpServletResponse response) {
-		return processFindForm(page, owner, result, model, response, FRAGMENTS_OWNERS_FIND_FORM,
+		String view = processFindForm(page, owner, result, model, FRAGMENTS_OWNERS_FIND_FORM,
 				"fragments/owners :: list");
+		return new HtmxResponse().addTemplate(view).pushHistory("/owners/find?lastName=" + owner.getLastName());
 	}
 
 	public String processFindForm(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result,
-			Model model, HttpServletResponse response, String emptyView, String listView) {
+			Model model, String emptyView, String listView) {
 		// allow parameterless GET request for /owners to return all records
 		if (owner.getLastName() == null) {
 			owner.setLastName(""); // empty string signifies broadest possible search
@@ -154,18 +156,16 @@ class OwnerController {
 		}
 
 		// multiple owners found
-		return addPaginationModel(owner.getLastName(), page, model, ownersResults, response, listView);
+		return addPaginationModel(owner.getLastName(), page, model, ownersResults, listView);
 	}
 
-	private String addPaginationModel(String lastName, int page, Model model, Page<Owner> paginated,
-			HttpServletResponse response, String listView) {
+	private String addPaginationModel(String lastName, int page, Model model, Page<Owner> paginated, String listView) {
 		model.addAttribute("listOwners", paginated);
 		List<Owner> listOwners = paginated.getContent();
 		model.addAttribute("currentPage", page);
 		model.addAttribute("totalPages", paginated.getTotalPages());
 		model.addAttribute("totalItems", paginated.getTotalElements());
 		model.addAttribute("listOwners", listOwners);
-		response.addHeader("HX-Push-Url", "/owners?lastName=" + lastName + "&page=" + page);
 		return listView;
 	}
 
@@ -182,9 +182,7 @@ class OwnerController {
 
 	@HxRequest
 	@GetMapping("/owners/{ownerId}/edit")
-	public String htmxInitUpdateOwnerForm(@PathVariable("ownerId") int ownerId, Model model, HttpServletRequest request,
-			HttpServletResponse response) {
-		response.addHeader("HX-Push-Url", request.getServletPath());
+	public String htmxInitUpdateOwnerForm(@PathVariable("ownerId") int ownerId, Model model) {
 		return handleInitUpdateOwnerForm(ownerId, model, FRAGMENTS_OWNERS_EDIT);
 	}
 
@@ -229,8 +227,7 @@ class OwnerController {
 
 	@HxRequest
 	@GetMapping("/owners/{ownerId}")
-	public ModelAndView htmxShowOwner(@PathVariable("ownerId") int ownerId, HttpServletResponse response) {
-		response.addHeader("HX-Push-Url", "/owners/" + ownerId);
+	public ModelAndView htmxShowOwner(@PathVariable("ownerId") int ownerId) {
 		return handleShowOwner(ownerId, "fragments/owners :: details");
 	}
 

@@ -27,8 +27,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
 /**
@@ -85,8 +83,7 @@ class VisitController {
 
 	@HxRequest
 	@GetMapping("/owners/{ownerId}/pets/{petId}/visits/new")
-	public String htmxInitNewVisitForm(HttpServletRequest request, HttpServletResponse response) {
-		response.addHeader("HX-Push-Url", request.getServletPath());
+	public String htmxInitNewVisitForm() {
 		return FRAGMENTS_PETS_VISITS;
 	}
 
