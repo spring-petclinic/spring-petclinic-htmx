@@ -1,0 +1,31 @@
+{{!
+<!DOCTYPE html>
+
+<html lang="en">
+
+  <body>
+
+  <form>}}
+
+      <div class="form-group{{^valid}} has-error{{/valid}}">
+        <label class="col-sm-2 control-label">{{label}}</label>
+
+        <div class="col-sm-10">
+          <select name="{{name}}">
+            {{#values}}<option value="{{value}}"{{#selected}} selected{{/selected}}>{{value}}</option>{{/values}}
+          </select>
+          {{#valid}}<span
+            class="glyphicon glyphicon-ok form-control-feedback"
+            aria-hidden="true"></span>{{/valid}}
+          {{^valid}}<span
+              class="glyphicon glyphicon-remove form-control-feedback"
+              aria-hidden="true"></span>
+            {{#errors}}<span class="help-inline">{{.}}</span>{{/errors}}{{/valid}}
+        </div>
+      </div>
+
+{{!  </form>
+
+  </body>
+
+</html>}}

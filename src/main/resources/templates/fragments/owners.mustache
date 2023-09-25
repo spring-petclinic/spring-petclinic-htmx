@@ -1,0 +1,180 @@
+{{#findForm}}
+<h2>Find Owners</h2>
+<form action="/owners" method="get" hx-get="/owners" hx-swap="innerHTML" hx-target="#block-content"
+	class="form-horizontal" id="search-owner-form">
+<div class="form-group">
+	<div class="control-group" id="lastNameGroup">
+	<label class="col-sm-2 control-label">Last name </label>
+	<div class="col-sm-10">
+		<input class="form-control" name="lastName" value="{{owner.lastName}}" size="30"
+		maxlength="80" /> <span class="help-inline">
+			{{#errors}}<p>{{.}}</p>{{/errors}}
+		</span>
+	</div>
+	</div>
+</div>
+<div class="form-group">
+	<div class="col-sm-offset-2 col-sm-10">
+	<button type="submit" class="btn btn-primary" >Find
+		Owner</button>
+	</div>
+</div>
+</form>
+<br />
+<a class="btn btn-primary" href="/owners/new" hx-get="/owners/new" hx-swap="innerHTML" hx-target="#block-content"
+	hx-push-url="/owners/new">Add Owner</a>
+{{/findForm}}
+
+{{#list}}
+<h2>Owners</h2>
+
+<table id="owners" class="table table-striped">
+	<thead>
+	<tr>
+		<th style="width: 150px;">Name</th>
+		<th style="width: 200px;">Address</th>
+		<th>City</th>
+		<th style="width: 120px">Telephone</th>
+		<th>Pets</th>
+	</tr>
+	</thead>
+	<tbody>
+		{{#listOwners}}<tr>
+			<td>
+				<a href="/owners/{{id}}" hx-get="/owners/{{id}}" hx-target="#block-content">{{firstName}} {{lastName}}</a>
+			</td>
+			<td>{{address}}</td>
+			<td>{{city}}</td>
+			<td>{{telephone}}</td>
+			<td>{{#pets}}<span>{{name}}</span> {{/pets}}</td>
+		</tr>{{/listOwners}}
+	</tbody>
+</table>
+
+{{#hasPages}}<div>
+	<span>Pages:</span>
+	<span>[</span>
+	{{#pages}}<span">
+		{{^current}}<a href="/owners?page={{number}}" hx-get="/owners?page={{number}}" hx-target="#block-content">{{number}}</a>{{/current}}
+		{{#current}}<span>{{number}}</span>{{/current}}
+	</span>{{/pages}}
+	<span>]&nbsp;</span>
+	<span>
+		{{^first}}<a href="/owners?page=1" title="First" hx-get="/owners?page=1" hx-target="#block-content"
+			class="fa fa-fast-backward"></a>{{/first}}
+		{{#first}}<span title="First" class="fa fa-fast-backward"></span>{{/first}}
+	</span>
+	<span>
+		{{^first}}<a href="/owners?page={{previous}}" title="Previous" hx-get="/owners?page={{previous}}" hx-target="#block-content"
+			class="fa fa-step-backward"></a>{{/first}}
+		{{#first}}<span title="Previous" class="fa fa-step-backward"></span>{{/first}}
+	</span>
+	<span>
+		{{^last}}<a href="/owners?page={{next}}" title="Next" hx-get="/owners?page={{next}}" hx-target="#block-content"
+			class="fa fa-step-forward"></a>{{/last}}
+		{{#last}}<span title="Next" class="fa fa-step-forward"></span>{{/last}}
+	</span>
+	<span>
+		{{^last}}<a href="/owners?page={{totalPages}}" title="Last" hx-get="/owners?page={{totalPages}}" hx-target="#block-content"
+			class="fa fa-fast-forward"></a>{{/last}}
+		{{#last}}<span title="Last" class="fa fa-fast-forward"></span>{{/last}}
+	</span>
+</div>{{/hasPages}}
+{{/list}}
+
+{{#editForm}}
+<h2>Owner</h2>
+<form class="form-horizontal" id="add-owner-form" method="post" hx-post hx-swap="innerHTML" hx-target="#block-content">
+{{#form}}
+<div class="form-group has-feedback">
+	{{#firstName}}{{<inputField}}First Name <input name="firstName"/>{{/inputField}}{{/firstName}}
+	{{#lastName}}{{<inputField}}Last Name <input name="lastName"/>{{/inputField}}{{/lastName}}
+	{{#address}}{{<inputField}}Address <input name="address"/>{{/inputField}}{{/address}}
+	{{#city}}{{<inputField}}City <input name="city"/>{{/inputField}}{{/city}}
+	{{#telephone}}{{<inputField}}Telephone <input name="telephone"/>{{/inputField}}{{/telephone}}
+</div>
+{{/form}}
+<div class="form-group">
+	<div class="col-sm-offset-2 col-sm-10">
+	{{#owner}}<button
+		class="btn btn-primary" type="submit">
+		{{#new}}Add Owner{{/new}}
+		{{^new}}Update Owner{{/new}}
+	</button>{{/owner}}
+	</div>
+</div>
+</form>
+{{/editForm}}
+
+{{#details}}
+<h2>Owner Information</h2>
+
+{{#owner}}
+<table class="table table-striped">
+	<tr>
+	<th>Name</th>
+	<td><b>{{firstName}} {{lastName}}</b></td>
+	</tr>
+	<tr>
+	<th>Address</th>
+	<td>{{address}}</td>
+	</tr>
+	<tr>
+	<th>City</th>
+	<td>{{city}}</td>
+	</tr>
+	<tr>
+	<th>Telephone</th>
+	<td>{{telephone}}</td>
+	</tr>
+</table>
+
+<a href="{{owner.id}}/edit" class="btn btn-primary" hx-get="{{owner.id}}/edit" hx-target="#block-content">Edit
+	Owner</a>
+<a href="{{owner.id}}/pets/new" class="btn btn-primary" hx-get="{{owner.id}}/pets/new" hx-target="#block-content">Add
+	New Pet</a>
+
+<br />
+<br />
+<br />
+<h2>Pets and Visits</h2>
+
+<table class="table table-striped">
+
+	{{#pets}}<tr>
+	<td valign="top">
+		<dl class="dl-horizontal">
+		<dt>Name</dt>
+		<dd>{{name}}</dd>
+		<dt>Birth Date</dt>
+		<dd>
+			{{birthDate}}</dd>
+		<dt>Type</dt>
+		<dd>{{type}}</dd>
+		</dl>
+	</td>
+	<td valign="top">
+		<table class="table-condensed">
+		<thead>
+			<tr>
+			<th>Visit Date</th>
+			<th>Description</th>
+			</tr>
+		</thead>
+		{{#visits}}<tr>
+			<td>{{date}}</td>
+			<td>{{description}}</td>
+		</tr>{{/visits}}
+		<tr>
+			<td><a href="{{owner.id}}/pets/{{id}}/edit" hx-get="{{owner.id}}/pets/{{id}}/edit" hx-target="#block-content">Edit
+				Pet</a></td>
+			<td><a href="{{owner.id}}/pets/{{id}}/visits/new" hx-get="{{owner.id}}/pets/{{id}}/visits/new" hx-target="#block-content">Add
+				Visit</a></td>
+		</tr>
+		</table>
+	</td>
+	</tr>{{/pets}}
+
+</table>
+{{/owner}}
+{{/details}}

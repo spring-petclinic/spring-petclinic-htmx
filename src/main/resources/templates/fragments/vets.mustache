@@ -1,0 +1,59 @@
+{{!
+<!DOCTYPE html>
+
+<html lang="en">
+
+  <body>}}
+<div id="block-content">
+  <h2>Veterinarians</h2>
+
+  <table id="vets" class="table table-striped">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Specialties</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#listVets}}<tr>
+        <td>{{firstName}} {{lastName}}</td>
+        <td>{{#specialties}}<span>{{name}}</span> {{/specialties}}
+        {{^special}}<span>none</span>{{/special}}</td>
+      </tr>{{/listVets}}
+    </tbody>
+  </table>
+  {{#hasPages}}<div>
+      <span>Pages:</span>
+      <span>[</span>
+      {{#pages}}<span">
+          {{^current}}<a href="/vets.html?page={{number}}" hx-get="/vets.html?page={{number}}" hx-target="#block-content">{{number}}</a>{{/current}}
+          {{#current}}<span>{{number}}</span>{{/current}}
+      </span>{{/pages}}
+      <span>]&nbsp;</span>
+      <span>
+          {{^first}}<a href="/vets.html?page=1"  hx-get="/vets.html?page=1" hx-target="#block-content" title="First"
+              class="fa fa-fast-backward"></a>{{/first}}
+          {{#first}}<span title="First" class="fa fa-fast-backward"></span>{{/first}}
+      </span>
+      <span>
+          {{^first}}<a href="/vets.html?page={{previous}}" hx-get="/vets.html?page={{previous}}" hx-target="#block-content" title="Previous"
+              class="fa fa-step-backward"></a>{{/first}}
+          {{#first}}<span title="Previous" class="fa fa-step-backward"></span>{{/first}}
+      </span>
+      <span>
+          {{^last}}<a href="/vets.html?page={{next}}" hx-get="/vets.html?page={{next}}" hx-target="#block-content" title="Next"
+              class="fa fa-step-forward"></a>{{/last}}
+          {{#last}}<span title="Next" class="fa fa-step-forward"></span>{{/last}}
+      </span>
+      <span>
+          {{^last}}<a href="/vets.html?page={{totalPages}}" hx-get="/vets.html?page={{totalPages}}" hx-target="#block-content" title="Last"
+              class="fa fa-fast-forward"></a>{{/last}}
+          {{#last}}<span title="Last" class="fa fa-fast-forward"></span>{{/last}}
+      </span>
+  </div>{{/hasPages}}
+
+</div>
+
+{{!  </body>
+
+</html>}}

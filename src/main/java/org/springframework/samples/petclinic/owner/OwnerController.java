@@ -16,13 +16,15 @@
 package org.springframework.samples.petclinic.owner;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.samples.petclinic.system.BasePage;
+import org.springframework.samples.petclinic.system.Form;
+import org.springframework.samples.petclinic.system.InputField;
+import org.springframework.samples.petclinic.system.PagedModelPage;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,9 +33,14 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.View;
+import org.springframework.web.servlet.view.RedirectView;
 
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
+import io.jstach.jstache.JStache;
+import io.jstach.jstache.JStachePartial;
+import io.jstach.jstache.JStachePartials;
+import io.jstach.opt.spring.webmvc.JStachioModelView;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -47,12 +54,6 @@ import jakarta.validation.Valid;
  */
 @Controller
 class OwnerController {
-
-	private static final String VIEWS_OWNER_CREATE_OR_UPDATE_FORM = "owners/createOrUpdateOwnerForm";
-
-	private static final String FRAGMENTS_OWNERS_EDIT = "fragments/owners :: edit";
-
-	private static final String FRAGMENTS_OWNERS_FIND_FORM = "fragments/owners :: find-form";
 
 	private final OwnerRepository owners;
 
@@ -71,69 +72,61 @@ class OwnerController {
 	}
 
 	@GetMapping("/owners/new")
-	public String initCreationForm(Map<String, Object> model) {
-		return handleInitCreationForm(model, VIEWS_OWNER_CREATE_OR_UPDATE_FORM);
+	public View initCreationForm(Owner owner) {
+		return JStachioModelView.of(new EditOwnerPage(owner));
 	}
 
 	@HxRequest
 	@GetMapping("/owners/new")
-	public String htmxInitCreationForm(Map<String, Object> model) {
-		return handleInitCreationForm(model, FRAGMENTS_OWNERS_EDIT);
-	}
-
-	protected String handleInitCreationForm(Map<String, Object> model, String view) {
-		Owner owner = new Owner();
-		model.put("owner", owner);
-		return view;
+	public View htmxInitCreationForm() {
+		return JStachioModelView.of(new EditOwnerForm(new Owner()));
 	}
 
 	@PostMapping("/owners/new")
-	public String processCreationForm(@Valid Owner owner, BindingResult result) {
-		return handleProcessCreationForm(owner, result, VIEWS_OWNER_CREATE_OR_UPDATE_FORM);
+	public View processCreationForm(@Valid Owner owner, BindingResult result) {
+		return handleProcessCreationForm(owner, result, false);
 	}
 
 	@HxRequest
 	@PostMapping("/owners/new")
-	public String htmxProcessCreationForm(@Valid Owner owner, BindingResult result) {
-		return handleProcessCreationForm(owner, result, FRAGMENTS_OWNERS_EDIT);
+	public View htmxProcessCreationForm(@Valid Owner owner, BindingResult result) {
+		return handleProcessCreationForm(owner, result, true);
 	}
 
-	protected String handleProcessCreationForm(@Valid Owner owner, BindingResult result, String errorView) {
+	protected View handleProcessCreationForm(@Valid Owner owner, BindingResult result, boolean fragment) {
 		if (result.hasErrors()) {
-			return errorView;
+			return fragment ? JStachioModelView.of(new EditOwnerForm(owner))
+					: JStachioModelView.of(new EditOwnerPage(owner));
 		}
 
 		this.owners.save(owner);
-		return "redirect:/owners/" + owner.getId();
+		return new RedirectView("/owners/" + owner.getId());
 	}
 
 	@GetMapping("/owners/find")
-	public String initFindForm() {
-		return "owners/findOwners";
+	public View initFindForm(Owner owner) {
+		return JStachioModelView.of(new FindOwnerPage(owner));
 	}
 
 	@HxRequest
 	@GetMapping("/owners/find")
-	public String htmxInitFindForm() {
-		return FRAGMENTS_OWNERS_FIND_FORM;
+	public View htmxInitFindForm(Owner owner) {
+		return JStachioModelView.of(new FindOwnerForm(owner));
 	}
 
 	@GetMapping("/owners")
-	public String ownersList(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result, Model model,
-			HttpServletResponse response) {
-		return processFindForm(page, owner, result, model, response, "owners/findOwners", "owners/ownersList");
+	public View ownersList(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result) {
+		return processFindForm(page, owner, result, false);
 	}
 
 	@HxRequest
 	@GetMapping("/owners")
-	public String htmxOwnersList(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result,
-			Model model, HttpServletResponse response) {
-		return processFindForm(page, owner, result, model, response, FRAGMENTS_OWNERS_FIND_FORM,
-				"fragments/owners :: list");
+	public View htmxOwnersList(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result) {
+		return processFindForm(page, owner, result, true);
 	}
 
-	public String processFindForm(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result,
-			Model model, HttpServletResponse response, String emptyView, String listView) {
+	public View processFindForm(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result,
+			boolean fragment) {
 		// allow parameterless GET request for /owners to return all records
 		if (owner.getLastName() == null) {
 			owner.setLastName(""); // empty string signifies broadest possible search
@@ -144,29 +137,18 @@ class OwnerController {
 		if (ownersResults.isEmpty()) {
 			// no owners found
 			result.rejectValue("lastName", "notFound", "not found");
-			return emptyView;
+			return JStachioModelView.of(fragment ? new FindOwnerForm(owner) : new FindOwnerPage(owner));
 		}
 
 		if (ownersResults.getTotalElements() == 1) {
 			// 1 owner found
 			owner = ownersResults.iterator().next();
-			return "redirect:/owners/" + owner.getId();
+			return new RedirectView("/owners/" + owner.getId());
 		}
 
 		// multiple owners found
-		return addPaginationModel(owner.getLastName(), page, model, ownersResults, response, listView);
-	}
-
-	private String addPaginationModel(String lastName, int page, Model model, Page<Owner> paginated,
-			HttpServletResponse response, String listView) {
-		model.addAttribute("listOwners", paginated);
-		List<Owner> listOwners = paginated.getContent();
-		model.addAttribute("currentPage", page);
-		model.addAttribute("totalPages", paginated.getTotalPages());
-		model.addAttribute("totalItems", paginated.getTotalElements());
-		model.addAttribute("listOwners", listOwners);
-		response.addHeader("HX-Push-Url", "/owners?lastName=" + lastName + "&page=" + page);
-		return listView;
+		return fragment ? JStachioModelView.of(new OwnersList(page, ownersResults))
+				: JStachioModelView.of(new OwnersPage(page, ownersResults));
 	}
 
 	private Page<Owner> findPaginatedForOwnersLastName(int page, String lastname) {
@@ -176,45 +158,41 @@ class OwnerController {
 	}
 
 	@GetMapping("/owners/{ownerId}/edit")
-	public String initUpdateOwnerForm(@PathVariable("ownerId") int ownerId, Model model) {
-		return handleInitUpdateOwnerForm(ownerId, model, VIEWS_OWNER_CREATE_OR_UPDATE_FORM);
+	public View initUpdateOwnerForm(@PathVariable("ownerId") int ownerId) {
+		Owner owner = this.owners.findById(ownerId);
+		return JStachioModelView.of(new EditOwnerPage(owner));
 	}
 
 	@HxRequest
 	@GetMapping("/owners/{ownerId}/edit")
-	public String htmxInitUpdateOwnerForm(@PathVariable("ownerId") int ownerId, Model model, HttpServletRequest request,
+	public View htmxInitUpdateOwnerForm(@PathVariable("ownerId") int ownerId, HttpServletRequest request,
 			HttpServletResponse response) {
-		response.addHeader("HX-Push-Url", request.getServletPath());
-		return handleInitUpdateOwnerForm(ownerId, model, FRAGMENTS_OWNERS_EDIT);
-	}
-
-	protected String handleInitUpdateOwnerForm(int ownerId, Model model, String view) {
 		Owner owner = this.owners.findById(ownerId);
-		model.addAttribute(owner);
-		return view;
+		response.addHeader("HX-Push-Url", request.getServletPath());
+		return JStachioModelView.of(new EditOwnerForm(owner));
 	}
 
 	@PostMapping("/owners/{ownerId}/edit")
-	public String processUpdateOwnerForm(@Valid Owner owner, BindingResult result,
-			@PathVariable("ownerId") int ownerId) {
-		return handleProcessUpdateOwnerForm(owner, result, ownerId, VIEWS_OWNER_CREATE_OR_UPDATE_FORM);
+	public View processUpdateOwnerForm(@Valid Owner owner, BindingResult result, @PathVariable("ownerId") int ownerId) {
+		return handleProcessUpdateOwnerForm(owner, result, ownerId, false);
 	}
 
 	@HxRequest
 	@PostMapping("/owners/{ownerId}/edit")
-	public String htmxProcessUpdateOwnerForm(@Valid Owner owner, BindingResult result,
+	public View htmxProcessUpdateOwnerForm(@Valid Owner owner, BindingResult result,
 			@PathVariable("ownerId") int ownerId) {
-		return handleProcessUpdateOwnerForm(owner, result, ownerId, FRAGMENTS_OWNERS_EDIT);
+		return handleProcessUpdateOwnerForm(owner, result, ownerId, true);
 	}
 
-	protected String handleProcessUpdateOwnerForm(Owner owner, BindingResult result, int ownerId, String view) {
+	protected View handleProcessUpdateOwnerForm(Owner owner, BindingResult result, int ownerId, boolean fragment) {
 		if (result.hasErrors()) {
-			return view;
+			return fragment ? JStachioModelView.of(new EditOwnerForm(owner))
+					: JStachioModelView.of(new EditOwnerPage(owner));
 		}
 
 		owner.setId(ownerId);
 		this.owners.save(owner);
-		return "redirect:/owners/{ownerId}";
+		return new RedirectView("/owners/" + owner.getId());
 	}
 
 	/**
@@ -223,22 +201,151 @@ class OwnerController {
 	 * @return a ModelMap with the model attributes for the view
 	 */
 	@GetMapping("/owners/{ownerId}")
-	public ModelAndView showOwner(@PathVariable("ownerId") int ownerId) {
-		return handleShowOwner(ownerId, "owners/ownerDetails");
+	public View showOwner(@PathVariable("ownerId") int ownerId) {
+		Owner owner = this.owners.findById(ownerId); // is this necessary?
+		return JStachioModelView.of(new OwnerPage(owner));
 	}
 
 	@HxRequest
 	@GetMapping("/owners/{ownerId}")
-	public ModelAndView htmxShowOwner(@PathVariable("ownerId") int ownerId, HttpServletResponse response) {
+	public View htmxShowOwner(@PathVariable("ownerId") int ownerId, HttpServletResponse response) {
 		response.addHeader("HX-Push-Url", "/owners/" + ownerId);
-		return handleShowOwner(ownerId, "fragments/owners :: details");
+		Owner owner = this.owners.findById(ownerId); // is this necessary?
+		return JStachioModelView.of(new OwnerDetails(owner));
 	}
 
-	protected ModelAndView handleShowOwner(int ownerId, String view) {
-		ModelAndView mav = new ModelAndView(view);
-		Owner owner = this.owners.findById(ownerId);
-		mav.addObject(owner);
-		return mav;
+}
+
+@JStache(path = "fragments/owners#findForm")
+class FindOwnerForm extends BasePage {
+
+	private final Owner owner;
+
+	FindOwnerForm(Owner owner) {
+		this.owner = owner;
+	}
+
+	public Form form() {
+		return new Form("owner", this.owner);
+	}
+
+	public String[] errors() {
+		return status("owner").getErrorMessages();
+	}
+
+	public Owner getOwner() {
+		return owner;
+	}
+
+}
+
+@JStache(path = "owners/findOwners")
+class FindOwnerPage extends FindOwnerForm {
+
+	FindOwnerPage(Owner owner) {
+		super(owner);
+	}
+
+}
+
+@JStache(path = "fragments/owners#list")
+class OwnersList extends PagedModelPage<Owner> {
+
+	OwnersList(int page, Page<Owner> paginated) {
+		super(page, paginated);
+	}
+
+	public List<Owner> listOwners() {
+		return list();
+	}
+
+}
+
+@JStache(path = "owners/ownersList")
+class OwnersPage extends OwnersList {
+
+	OwnersPage(int page, Page<Owner> paginated) {
+		super(page, paginated);
+	}
+
+}
+
+@JStache(path = "fragments/owners#editForm")
+@JStachePartials(@JStachePartial(name = "inputField", path = "fragments/inputField"))
+class EditOwnerForm extends BasePage {
+
+	final Owner owner;
+
+	EditOwnerForm(Owner owner) {
+		this.owner = owner;
+	}
+
+	public Owner getOwner() {
+		return owner;
+	}
+
+	public Form form() {
+		return new Form("owner", this.owner);
+	}
+
+	public String[] errors() {
+		return status("owner").getErrorMessages();
+	}
+
+	public InputField firstName() {
+		return new InputField("First Name", "firstName", this.owner.getFirstName(), "text",
+				status("owner", "firstName"));
+	}
+
+	public InputField lastName() {
+		return new InputField("Last Name", "lastName", this.owner.getLastName(), "text", status("owner", "lastName"));
+	}
+
+	public InputField address() {
+		return new InputField("Address", "address", this.owner.getAddress(), "text", status("owner", "address"));
+	}
+
+	public InputField city() {
+		return new InputField("City", "city", this.owner.getCity(), "text", status("owner", "city"));
+	}
+
+	public InputField telephone() {
+		return new InputField("Telephone", "telephone", this.owner.getTelephone(), "text",
+				status("owner", "telephone"));
+	}
+
+}
+
+@JStache(path = "owners/createOrUpdateOwnerForm")
+@JStachePartials(@JStachePartial(name = "inputField", path = "fragments/inputField"))
+class EditOwnerPage extends EditOwnerForm {
+
+	EditOwnerPage(Owner owner) {
+		super(owner);
+	}
+
+}
+
+@JStache(path = "fragments/owners#details")
+class OwnerDetails extends BasePage {
+
+	final Owner owner;
+
+	OwnerDetails(Owner owner) {
+		this.owner = owner;
+	}
+
+	public Owner getOwner() {
+		return owner;
+	}
+
+}
+
+@JStache(path = "owners/ownerDetails")
+class OwnerPage extends OwnerDetails {
+
+	OwnerPage(Owner owner) {
+		super(owner);
 	}
 
 }

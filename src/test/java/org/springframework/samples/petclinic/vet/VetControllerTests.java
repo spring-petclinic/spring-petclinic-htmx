@@ -16,34 +16,40 @@
 
 package org.springframework.samples.petclinic.vet;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.samples.petclinic.htmx.HtmxTestUtils.toggleHtmx;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+
+import java.util.List;
 
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
+import org.springframework.samples.petclinic.system.Application;
+import org.springframework.samples.petclinic.system.ApplicationPageConfigurer;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import io.jstach.opt.spring.webmvc.JStachioModelView;
 
 /**
  * Test class for the {@link VetController}
  */
+
 @WebMvcTest(VetController.class)
+@Import({ Application.class, ApplicationPageConfigurer.class })
 class VetControllerTests {
 
 	@Autowired
@@ -80,13 +86,17 @@ class VetControllerTests {
 
 	}
 
-	@CsvSource({ "false,vets/vetList", "true,fragments/vets :: list" })
-	@ParameterizedTest
-	void testShowVetListHtml(boolean hxRequest, String expectedView) throws Exception {
-		mockMvc.perform(toggleHtmx(get("/vets.html?page=1"), hxRequest))
+	@Test
+	void testShowVetListHtml() throws Exception {
+
+		mockMvc.perform(MockMvcRequestBuilders.get("/vets.html?page=1"))
 			.andExpect(status().isOk())
-			.andExpect(model().attributeExists("listVets"))
-			.andExpect(view().name(expectedView));
+			.andExpect(result -> {
+				JStachioModelView view = (JStachioModelView) result.getModelAndView().getView();
+				VetsPage vets = (VetsPage) view.model();
+				assertThat(vets.listVets()).isInstanceOf(List.class);
+			});
+
 	}
 
 	@Test

@@ -16,28 +16,33 @@
 
 package org.springframework.samples.petclinic.owner;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.samples.petclinic.system.Application;
+import org.springframework.samples.petclinic.system.ApplicationPageConfigurer;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.servlet.view.RedirectView;
 
-import static org.mockito.BDDMockito.given;
-import static org.springframework.samples.petclinic.htmx.HtmxTestUtils.toggleHtmx;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import io.jstach.opt.spring.webmvc.JStachioModelView;
 
 /**
  * Test class for {@link VisitController}
  *
  * @author Colin But
- * @author Alexandre Grison
  */
 @WebMvcTest(VisitController.class)
+@Import({ Application.class, ApplicationPageConfigurer.class })
 class VisitControllerTests {
 
 	private static final int TEST_OWNER_ID = 1;
@@ -54,43 +59,37 @@ class VisitControllerTests {
 	void init() {
 		Owner owner = new Owner();
 		Pet pet = new Pet();
+		pet.setType(new PetType());
 		owner.addPet(pet);
 		pet.setId(TEST_PET_ID);
 		given(this.owners.findById(TEST_OWNER_ID)).willReturn(owner);
 	}
 
-	@CsvSource({ "false,pets/createOrUpdateVisitForm", "true,fragments/pets :: visits" })
-	@ParameterizedTest
-	void testInitNewVisitForm(boolean hxRequest, String expectedView) throws Exception {
-		mockMvc
-			.perform(
-					toggleHtmx(get("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID, TEST_PET_ID), hxRequest))
+	@Test
+	void testInitNewVisitForm() throws Exception {
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID, TEST_PET_ID))
 			.andExpect(status().isOk())
-			.andExpect(view().name(expectedView));
+			.andExpect(result -> assertThat(result.getModelAndView().getView()).isInstanceOf(JStachioModelView.class));
 	}
 
-	@ValueSource(booleans = { false, true })
-	@ParameterizedTest
-	void testProcessNewVisitFormSuccess(boolean hxRequest) throws Exception {
+	@Test
+	void testProcessNewVisitFormSuccess() throws Exception {
 		mockMvc
-			.perform(
-					toggleHtmx(post("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID, TEST_PET_ID), hxRequest)
-						.param("name", "George")
-						.param("description", "Visit Description"))
+			.perform(post("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID, TEST_PET_ID)
+				.param("name", "George")
+				.param("description", "Visit Description"))
 			.andExpect(status().is3xxRedirection())
-			.andExpect(view().name("redirect:/owners/{ownerId}"));
+			.andExpect(result -> assertThat(result.getModelAndView().getView()).isInstanceOf(RedirectView.class));
 	}
 
-	@CsvSource({ "false,pets/createOrUpdateVisitForm", "true,fragments/pets :: visits" })
-	@ParameterizedTest
-	void testProcessNewVisitFormHasErrors(boolean hxRequest, String expectedView) throws Exception {
+	@Test
+	void testProcessNewVisitFormHasErrors() throws Exception {
 		mockMvc
-			.perform(
-					toggleHtmx(post("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID, TEST_PET_ID), hxRequest)
-						.param("name", "George"))
+			.perform(post("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID, TEST_PET_ID).param("name",
+					"George"))
 			.andExpect(model().attributeHasErrors("visit"))
 			.andExpect(status().isOk())
-			.andExpect(view().name(expectedView));
+			.andExpect(result -> assertThat(result.getModelAndView().getView()).isInstanceOf(JStachioModelView.class));
 	}
 
 }

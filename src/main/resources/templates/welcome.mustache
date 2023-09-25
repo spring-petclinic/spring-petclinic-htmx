@@ -1,0 +1,19 @@
+{{!
+<!DOCTYPE html>
+
+<html lang="en">
+
+  <body>}}
+
+{{<fragments/layout}}{{$menu}}home{{/menu}}{{$body}}
+    <h2 th:text="#{welcome}">Welcome</h2>
+    <div class="row">
+        <div class="col-md-12">
+          <img class="img-responsive" src="resources/images/pets.png"/>
+        </div>
+    </div>
+{{/body}}{{/fragments/layout}}
+
+{{!  </body>
+
+</html>}}

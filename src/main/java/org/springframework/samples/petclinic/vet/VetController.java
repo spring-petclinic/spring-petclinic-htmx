@@ -20,13 +20,17 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.samples.petclinic.system.PagedModelPage;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.View;
 
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
+import io.jstach.jstache.JStache;
+import io.jstach.opt.spring.webmvc.JStachioModelView;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
@@ -46,19 +50,21 @@ class VetController {
 	}
 
 	@GetMapping("/vets.html")
-	public String showVetList(@RequestParam(defaultValue = "1") int page, Model model, HttpServletResponse response) {
-		return handleVetList(page, model, "vets/vetList", response);
+	public View showVetList(@RequestParam(defaultValue = "1") int page) {
+		Page<Vet> paginated = findPaginated(page);
+		return JStachioModelView.of(new VetsPage(page, paginated));
 	}
 
 	@HxRequest
 	@GetMapping("/vets.html")
-	public String htmxShowVetList(@RequestParam(defaultValue = "1") int page, Model model,
-			HttpServletResponse response) {
-		return handleVetList(page, model, "fragments/vets :: list", response);
+	public View htmxShowVetList(@RequestParam(defaultValue = "1") int page) {
+		Page<Vet> paginated = findPaginated(page);
+		return JStachioModelView.of(new VetList(page, paginated));
 	}
 
 	protected String handleVetList(int page, Model model, String view, HttpServletResponse response) {
-		// Here we are returning an object of type 'Vets' rather than a collection of Vet
+		// Here we are returning an object of type 'Vets' rather than a collection of
+		// Vet
 		// objects so it is simpler for Object-Xml mapping
 		Vets vets = new Vets();
 		Page<Vet> paginated = findPaginated(page);
@@ -84,12 +90,35 @@ class VetController {
 	}
 
 	@GetMapping({ "/vets" })
-	public @ResponseBody Vets showResourcesVetList() {
-		// Here we are returning an object of type 'Vets' rather than a collection of Vet
-		// objects so it is simpler for JSon/Object mapping
+	@ResponseBody
+	public Vets showResourcesVetList() {
+		// Here we are returning an object of type 'Vets' rather than a collection of
+		// Vet objects so it is simpler for JSon/Object mapping
 		Vets vets = new Vets();
 		vets.getVetList().addAll(this.vetRepository.findAll());
 		return vets;
+	}
+
+}
+
+@JStache(path = "fragments/vets")
+class VetList extends PagedModelPage<Vet> {
+
+	VetList(int page, Page<Vet> paginated) {
+		super(page, paginated);
+	}
+
+	public List<Vet> listVets() {
+		return list();
+	}
+
+}
+
+@JStache(path = "vets/vetList")
+class VetsPage extends VetList {
+
+	VetsPage(int page, Page<Vet> paginated) {
+		super(page, paginated);
 	}
 
 }

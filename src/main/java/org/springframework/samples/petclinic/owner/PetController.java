@@ -16,7 +16,12 @@
 package org.springframework.samples.petclinic.owner;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
+import org.springframework.samples.petclinic.system.BasePage;
+import org.springframework.samples.petclinic.system.Form;
+import org.springframework.samples.petclinic.system.InputField;
+import org.springframework.samples.petclinic.system.SelectField;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.StringUtils;
@@ -28,8 +33,14 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.View;
+import org.springframework.web.servlet.view.RedirectView;
 
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
+import io.jstach.jstache.JStache;
+import io.jstach.jstache.JStachePartial;
+import io.jstach.jstache.JStachePartials;
+import io.jstach.opt.spring.webmvc.JStachioModelView;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -43,10 +54,6 @@ import jakarta.validation.Valid;
 @Controller
 @RequestMapping("/owners/{ownerId}")
 class PetController {
-
-	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
-
-	private static final String FRAGMENTS_PETS_EDIT = "fragments/pets :: edit";
 
 	private final OwnerRepository owners;
 
@@ -81,38 +88,28 @@ class PetController {
 	}
 
 	@GetMapping("/pets/new")
-	public String initCreationForm(Owner owner, ModelMap model) {
-		return handleInitCreationForm(owner, model, VIEWS_PETS_CREATE_OR_UPDATE_FORM);
+	public View initCreationForm(Owner owner, Pet pet, ModelMap model) {
+		owner.addPet(pet);
+		@SuppressWarnings("unchecked")
+		Collection<PetType> types = (Collection<PetType>) model.get("types");
+		return JStachioModelView.of(new PetPage(owner, pet, types));
 	}
 
 	@HxRequest
 	@GetMapping("/pets/new")
-	public String htmxInitCreationForm(Owner owner, ModelMap model, HttpServletRequest request,
+	public View htmxInitCreationForm(Owner owner, ModelMap model, HttpServletRequest request,
 			HttpServletResponse response) {
 		response.addHeader("HX-Push-Url", request.getServletPath());
-		return handleInitCreationForm(owner, model, FRAGMENTS_PETS_EDIT);
-	}
-
-	protected String handleInitCreationForm(Owner owner, ModelMap model, String view) {
 		Pet pet = new Pet();
 		owner.addPet(pet);
 		model.put("pet", pet);
-		return view;
+		@SuppressWarnings("unchecked")
+		Collection<PetType> types = (Collection<PetType>) model.get("types");
+		return JStachioModelView.of(new PetForm(owner, pet, types));
 	}
 
 	@PostMapping("/pets/new")
-	public String processCreationForm(Owner owner, @Valid Pet pet, BindingResult result, ModelMap model) {
-		return handleProcessCreationForm(owner, pet, result, model, VIEWS_PETS_CREATE_OR_UPDATE_FORM);
-	}
-
-	@HxRequest
-	@PostMapping("/pets/new")
-	public String htmxProcessCreationForm(Owner owner, @Valid Pet pet, BindingResult result, ModelMap model) {
-		return handleProcessCreationForm(owner, pet, result, model, FRAGMENTS_PETS_EDIT);
-	}
-
-	protected String handleProcessCreationForm(Owner owner, @Valid Pet pet, BindingResult result, ModelMap model,
-			String view) {
+	public View processCreationForm(Owner owner, @Valid Pet pet, BindingResult result, ModelMap model) {
 		if (StringUtils.hasLength(pet.getName()) && pet.isNew() && owner.getPet(pet.getName(), true) != null) {
 			result.rejectValue("name", "duplicate", "already exists");
 		}
@@ -120,24 +117,48 @@ class PetController {
 		owner.addPet(pet);
 		if (result.hasErrors()) {
 			model.put("pet", pet);
-			return view;
+			@SuppressWarnings("unchecked")
+			Collection<PetType> types = (Collection<PetType>) model.get("types");
+			return JStachioModelView.of(new PetPage(owner, pet, types));
 		}
 
 		this.owners.save(owner);
-		return "redirect:/owners/{ownerId}";
+		return new RedirectView("/owners/{ownerId}");
+	}
+
+	@HxRequest
+	@PostMapping("/pets/new")
+	public View htmxProcessCreationForm(Owner owner, @Valid Pet pet, BindingResult result, ModelMap model) {
+		if (StringUtils.hasLength(pet.getName()) && pet.isNew() && owner.getPet(pet.getName(), true) != null) {
+			result.rejectValue("name", "duplicate", "already exists");
+		}
+
+		owner.addPet(pet);
+		if (result.hasErrors()) {
+			model.put("pet", pet);
+			@SuppressWarnings("unchecked")
+			Collection<PetType> types = (Collection<PetType>) model.get("types");
+			return JStachioModelView.of(new PetForm(owner, pet, types));
+		}
+
+		this.owners.save(owner);
+		return new RedirectView("/owners/{ownerId}");
 	}
 
 	@GetMapping("/pets/{petId}/edit")
-	public String initUpdateForm(Owner owner, @PathVariable("petId") int petId, ModelMap model) {
-		return handleInitUpdateForm(owner, petId, model, VIEWS_PETS_CREATE_OR_UPDATE_FORM);
+	public View initUpdateForm(Owner owner, Pet pet, ModelMap model) {
+		@SuppressWarnings("unchecked")
+		Collection<PetType> types = (Collection<PetType>) model.get("types");
+		return JStachioModelView.of(new PetPage(owner, pet, types));
 	}
 
 	@HxRequest
 	@GetMapping("/pets/{petId}/edit")
-	public String htmxInitUpdateForm(@PathVariable("ownerId") int ownerId, Owner owner,
-			@PathVariable("petId") int petId, ModelMap model, HttpServletResponse response) {
-		response.addHeader("HX-Push-Url", "/owners/" + ownerId + "/pets/" + petId + "/edit");
-		return handleInitUpdateForm(owner, petId, model, FRAGMENTS_PETS_EDIT);
+	public View htmxInitUpdateForm(Owner owner, Pet pet, ModelMap model, HttpServletResponse response) {
+		response.addHeader("HX-Push-Url", "/owners/" + owner.getId() + "/pets/" + pet.getId() + "/edit");
+		@SuppressWarnings("unchecked")
+		Collection<PetType> types = (Collection<PetType>) model.get("types");
+		return JStachioModelView.of(new PetForm(owner, pet, types));
 	}
 
 	protected String handleInitUpdateForm(Owner owner, int petId, ModelMap model, String view) {
@@ -148,26 +169,91 @@ class PetController {
 	}
 
 	@PostMapping("/pets/{petId}/edit")
-	public String processUpdateForm(@Valid Pet pet, BindingResult result, Owner owner, ModelMap model) {
-		return handleProcessUpdateForm(pet, result, owner, model, VIEWS_PETS_CREATE_OR_UPDATE_FORM);
+	public View processUpdateForm(@Valid Pet pet, BindingResult result, Owner owner, ModelMap model) {
+		return handleProcessUpdateForm(pet, result, owner, model, false);
 	}
 
 	@HxRequest
 	@PostMapping("/pets/{petId}/edit")
-	public String htmxProcessUpdateForm(@Valid Pet pet, BindingResult result, Owner owner, ModelMap model) {
-		return handleProcessUpdateForm(pet, result, owner, model, FRAGMENTS_PETS_EDIT);
+	public View htmxProcessUpdateForm(@Valid Pet pet, BindingResult result, Owner owner, ModelMap model) {
+		return handleProcessUpdateForm(pet, result, owner, model, true);
 	}
 
-	protected String handleProcessUpdateForm(@Valid Pet pet, BindingResult result, Owner owner, ModelMap model,
-			String view) {
+	protected View handleProcessUpdateForm(@Valid Pet pet, BindingResult result, Owner owner, ModelMap model,
+			boolean fragment) {
 		if (result.hasErrors()) {
 			model.put("pet", pet);
-			return view;
+			@SuppressWarnings("unchecked")
+			Collection<PetType> types = (Collection<PetType>) model.get("types");
+			return fragment ? JStachioModelView.of(new PetForm(owner, pet, types))
+					: JStachioModelView.of(new PetPage(owner, pet, types));
 		}
 
 		owner.addPet(pet);
 		this.owners.save(owner);
-		return "redirect:/owners/{ownerId}";
+		return new RedirectView("/owners/{ownerId}");
+	}
+
+}
+
+@JStache(path = "pets/createOrUpdatePetForm")
+@JStachePartials(@JStachePartial(name = "inputField", path = "fragments/inputField"))
+class PetPage extends PetForm {
+
+	PetPage(Owner owner, Pet pet, Collection<PetType> types) {
+		super(owner, pet, types);
+	}
+
+}
+
+@JStache(path = "fragments/pets#edit")
+@JStachePartials(@JStachePartial(name = "inputField", path = "fragments/inputField"))
+class PetForm extends BasePage {
+
+	final Pet pet;
+
+	final Owner owner;
+
+	final Collection<PetType> types;
+
+	PetForm(Owner owner, Pet pet, Collection<PetType> types) {
+		this.pet = pet;
+		this.owner = owner;
+		this.types = types;
+	}
+
+	public Owner getOwner() {
+		return owner;
+	}
+
+	public Pet getPet() {
+		return pet;
+	}
+
+	public Collection<PetType> getTypes() {
+		return types;
+	}
+
+	public Form form() {
+		return new Form("pet", this.pet);
+	}
+
+	public String[] errors() {
+		return status("pet").getErrorMessages();
+	}
+
+	public InputField nameField() {
+		return new InputField("Name", "name", this.pet.getName(), "text", status("pet", "name"));
+	}
+
+	public InputField birthDate() {
+		return new InputField("Birth Date", "birthDate", this.pet.getBirthDate().toString(), "date",
+				status("pet", "birthDate"));
+	}
+
+	public SelectField type() {
+		return new SelectField("Type", "type", this.pet.getType() == null ? "" : this.pet.getType().toString(),
+				this.types.stream().map(item -> item.toString()).collect(Collectors.toList()), status("pet", "type"));
 	}
 
 }

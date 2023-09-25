@@ -48,16 +48,16 @@ public class Owner extends Person {
 
 	@Column(name = "address")
 	@NotEmpty
-	private String address;
+	private String address = "";
 
 	@Column(name = "city")
 	@NotEmpty
-	private String city;
+	private String city = "";
 
 	@Column(name = "telephone")
 	@NotEmpty
 	@Digits(fraction = 0, integer = 10)
-	private String telephone;
+	private String telephone = "";
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "owner_id")
@@ -109,7 +109,7 @@ public class Owner extends Person {
 
 	/**
 	 * Return the Pet with the given id, or null if none found for this Owner.
-	 * @param id to test
+	 * @param name to test
 	 * @return a pet if pet id is already in use
 	 */
 	public Pet getPet(Integer id) {
@@ -160,7 +160,7 @@ public class Owner extends Person {
 	 * @param petId the identifier of the {@link Pet}, must not be {@literal null}.
 	 * @param visit the visit to add, must not be {@literal null}.
 	 */
-	public void addVisit(Integer petId, Visit visit) {
+	public Owner addVisit(Integer petId, Visit visit) {
 
 		Assert.notNull(petId, "Pet identifier must not be null!");
 		Assert.notNull(visit, "Visit must not be null!");
@@ -170,6 +170,8 @@ public class Owner extends Person {
 		Assert.notNull(pet, "Invalid Pet identifier!");
 
 		pet.addVisit(visit);
+
+		return this;
 	}
 
 }
