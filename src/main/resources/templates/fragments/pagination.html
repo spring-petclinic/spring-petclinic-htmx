@@ -1,10 +1,10 @@
 <span th:fragment="item(url,page,condition)" th:tag="remove">
-  <a th:if="${condition}" th:attr="hx-get=@{${url} + '?page=' + ${page}}" th:href="@{'/owners?page=' + ${page}}" hx-target="#block-content">[[${page}]]</a>
+  <a th:if="${condition}" hx:get="@{${url}(page=${page})}" th:href="@{${url}(page=${page})}" hx-target="#block-content">[[${page}]]</a>
   <span th:unless="${condition}">[[${page}]]</span>
 </span>
 
 <span th:fragment="control(url, page,condition,title,class)" th:tag="remove">
-  <a th:if="${condition}" th:attr="hx-get=@{${url} + '?page=' + ${page}}" th:href="@{'/owners?page=' + ${page}}" hx-target="#block-content" th:title="${title}" th:class="${class}"></a>
+  <a th:if="${condition}" hx:get="@{${url}(page=${page})}" th:href="@{${url}(page=${page})}" hx-target="#block-content" th:title="${title}" th:class="${class}"></a>
   <span th:unless="${condition}" th:title="${title}" th:class="${class}"></span>
 </span>
 
