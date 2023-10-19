@@ -47,7 +47,7 @@
     <tr th:each="owner : ${listOwners}">
       <td>
         <a th:href="@{/owners/__${owner.id}__}" th:text="${owner.firstName + ' ' + owner.lastName}"
-           th:attr="hx-get=@{/owners/__${owner.id}__}" hx-target="#block-content"/></a>
+           hx:get="@{/owners/__${owner.id}__}" hx-target="#block-content"/></a>
       </td>
       <td th:text="${owner.address}"/>
       <td th:text="${owner.city}"/>
@@ -83,10 +83,10 @@
     </tr>
   </table>
 
-  <a th:attr="hx-get=@{__${owner.id}__/edit}" hx-target="#block-content" th:href="@{__${owner.id}__/edit}"
+  <a hx:get="@{__${owner.id}__/edit}" hx-target="#block-content" th:href="@{__${owner.id}__/edit}"
      class="btn btn-primary">Edit
     Owner</a>
-  <a th:attr="hx-get=@{__${owner.id}__/pets/new}" th:href="@{__${owner.id}__/pets/new}" hx-target="#block-content" class="btn btn-primary">Add
+  <a hx:get="@{__${owner.id}__/pets/new}" th:href="@{__${owner.id}__/pets/new}" hx-target="#block-content" class="btn btn-primary">Add
     New Pet</a>
 </div>
 
@@ -122,9 +122,9 @@
           </tr>
           <tr>
             <td><a th:href="@{__${owner.id}__/pets/__${pet.id}__/edit}"
-                   th:attr="hx-get=@{__${owner.id}__/pets/__${pet.id}__/edit}" hx-target="#block-content">Edit Pet</a></td>
+                   hx-get="@{__${owner.id}__/pets/__${pet.id}__/edit}" hx-target="#block-content">Edit Pet</a></td>
             <td><a th:href="@{__${owner.id}__/pets/__${pet.id}__/visits/new}"
-                   th:attr="hx-get=@{__${owner.id}__/pets/__${pet.id}__/visits/new}" hx-target="#block-content">Add Visit</a></td>
+                   hx:get="@{__${owner.id}__/pets/__${pet.id}__/visits/new}" hx-target="#block-content">Add Visit</a></td>
           </tr>
         </table>
       </td>
