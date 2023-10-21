@@ -37,7 +37,7 @@
           <li th:fragment="menuItem (link,active,title,glyph,text,target)" th:class="nav-item"
               _="on htmx:afterOnLoad take .active for event.target">
             <a th:class="${active==menu ? 'nav-link active' : 'nav-link'}" th:href="@{__${link}__}" th:title="${title}"
-               hx:get="@{__${link}__}" hx:target="${target}" hx:push-url="@{__${link}__}">
+               hx:get="@{__${link}__}" hx:target="${target}" hx-push-url="true">
               <span th:class="'fa fa-'+${glyph}" class="fa fa-home"></span>
               <span th:text="${text}">Template</span>
             </a>
