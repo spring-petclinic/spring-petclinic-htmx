@@ -1,7 +1,7 @@
 <div th:fragment="find-form" th:remove="tag">
   <h2>Find Owners</h2>
 
-  <form th:object="${owner}" th:action="@{/owners}" method="get"
+  <form th:object="${owner}" th:action="@{/owners}" method="get" hx-push-url="true"
         hx:get="@{/owners}" hx-swap="innerHTML" hx-target="#block-content"
         class="form-horizontal" id="search-owner-form">
     <div class="form-group">

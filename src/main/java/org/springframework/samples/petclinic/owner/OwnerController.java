@@ -118,7 +118,8 @@ class OwnerController {
 	}
 
 	@GetMapping("/owners")
-	public String ownersList(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result, Model model) {
+	public String ownersList(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result,
+			Model model) {
 		return processFindForm(page, owner, result, model, "owners/findOwners", "owners/ownersList");
 	}
 
@@ -128,7 +129,7 @@ class OwnerController {
 			Model model) {
 		String view = processFindForm(page, owner, result, model, FRAGMENTS_OWNERS_FIND_FORM,
 				"fragments/owners :: list");
-		return new HtmxResponse().addTemplate(view).pushHistory("/owners/find?lastName=" + owner.getLastName());
+		return new HtmxResponse().addTemplate(view);
 	}
 
 	public String processFindForm(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result,
