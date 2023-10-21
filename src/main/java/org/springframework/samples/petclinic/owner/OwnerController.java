@@ -35,8 +35,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxResponse;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
 /**
@@ -120,15 +118,14 @@ class OwnerController {
 	}
 
 	@GetMapping("/owners")
-	public String ownersList(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result, Model model,
-			HttpServletResponse response) {
+	public String ownersList(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result, Model model) {
 		return processFindForm(page, owner, result, model, "owners/findOwners", "owners/ownersList");
 	}
 
 	@HxRequest
 	@GetMapping("/owners")
 	public HtmxResponse htmxOwnersList(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result,
-			Model model, HttpServletResponse response) {
+			Model model) {
 		String view = processFindForm(page, owner, result, model, FRAGMENTS_OWNERS_FIND_FORM,
 				"fragments/owners :: list");
 		return new HtmxResponse().addTemplate(view).pushHistory("/owners/find?lastName=" + owner.getLastName());
