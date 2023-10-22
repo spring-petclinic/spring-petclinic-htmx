@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * @author Juergen Hoeller
@@ -46,34 +45,31 @@ class VetController {
 	}
 
 	@GetMapping("/vets.html")
-	public String showVetList(@RequestParam(defaultValue = "1") int page, Model model, HttpServletResponse response) {
-		return handleVetList(page, model, "vets/vetList", response);
+	public String showVetList(@RequestParam(defaultValue = "1") int page, Model model) {
+		return handleVetList(page, model, "vets/vetList");
 	}
 
 	@HxRequest
 	@GetMapping("/vets.html")
-	public String htmxShowVetList(@RequestParam(defaultValue = "1") int page, Model model,
-			HttpServletResponse response) {
-		return handleVetList(page, model, "fragments/vets :: list", response);
+	public String htmxShowVetList(@RequestParam(defaultValue = "1") int page, Model model) {
+		return handleVetList(page, model, "fragments/vets :: list");
 	}
 
-	protected String handleVetList(int page, Model model, String view, HttpServletResponse response) {
+	protected String handleVetList(int page, Model model, String view) {
 		// Here we are returning an object of type 'Vets' rather than a collection of Vet
 		// objects so it is simpler for Object-Xml mapping
 		Vets vets = new Vets();
 		Page<Vet> paginated = findPaginated(page);
 		vets.getVetList().addAll(paginated.toList());
-		return addPaginationModel(page, paginated, model, view, response);
+		return addPaginationModel(page, paginated, model, view);
 	}
 
-	private String addPaginationModel(int page, Page<Vet> paginated, Model model, String view,
-			HttpServletResponse response) {
+	private String addPaginationModel(int page, Page<Vet> paginated, Model model, String view) {
 		List<Vet> listVets = paginated.getContent();
 		model.addAttribute("currentPage", page);
 		model.addAttribute("totalPages", paginated.getTotalPages());
 		model.addAttribute("totalItems", paginated.getTotalElements());
 		model.addAttribute("listVets", listVets);
-		response.addHeader("HX-Push-Url", "/vets.html");
 		return view;
 	}
 

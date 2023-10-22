@@ -1,7 +1,7 @@
 <div th:fragment="find-form" th:remove="tag">
   <h2>Find Owners</h2>
 
-  <form th:object="${owner}" th:action="@{/owners}" method="get"
+  <form th:object="${owner}" th:action="@{/owners}" method="get" hx-push-url="true"
         hx:get="@{/owners}" hx-swap="innerHTML" hx-target="#block-content"
         class="form-horizontal" id="search-owner-form">
     <div class="form-group">
@@ -25,7 +25,7 @@
     </div>
 
     <a class="btn btn-primary" hx:get="@{/owners/new}" hx-swap="innerHTML" hx-target="#block-content"
-       hx:push-url="@{/owners/new}" th:href="@{/owners/new}">Add Owner</a>
+       hx-push-url="true" th:href="@{/owners/new}">Add Owner</a>
 
   </form>
 </div>
@@ -47,7 +47,7 @@
     <tr th:each="owner : ${listOwners}">
       <td>
         <a th:href="@{/owners/__${owner.id}__}" th:text="${owner.firstName + ' ' + owner.lastName}"
-           hx:get="@{/owners/__${owner.id}__}" hx-target="#block-content"/></a>
+        hx:get="@{/owners/__${owner.id}__}" hx-push-url="true" hx-target="#block-content"/></a>
       </td>
       <td th:text="${owner.address}"/>
       <td th:text="${owner.city}"/>
@@ -83,10 +83,10 @@
     </tr>
   </table>
 
-  <a hx:get="@{__${owner.id}__/edit}" hx-target="#block-content" th:href="@{__${owner.id}__/edit}"
+  <a hx:get="@{__${owner.id}__/edit}" hx-push-url="true" hx-target="#block-content" th:href="@{__${owner.id}__/edit}"
      class="btn btn-primary">Edit
     Owner</a>
-  <a hx:get="@{__${owner.id}__/pets/new}" th:href="@{__${owner.id}__/pets/new}" hx-target="#block-content" class="btn btn-primary">Add
+  <a hx:get="@{__${owner.id}__/pets/new}" hx-push-url="true" th:href="@{__${owner.id}__/pets/new}" hx-target="#block-content" class="btn btn-primary">Add
     New Pet</a>
 </div>
 
@@ -122,9 +122,13 @@
           </tr>
           <tr>
             <td><a th:href="@{__${owner.id}__/pets/__${pet.id}__/edit}"
-                   hx-get="@{__${owner.id}__/pets/__${pet.id}__/edit}" hx-target="#block-content">Edit Pet</a></td>
+                   hx:get="@{__${owner.id}__/pets/__${pet.id}__/edit}"
+                   hx-push-url="true"
+                   hx-target="#block-content">Edit Pet</a></td>
             <td><a th:href="@{__${owner.id}__/pets/__${pet.id}__/visits/new}"
-                   hx:get="@{__${owner.id}__/pets/__${pet.id}__/visits/new}" hx-target="#block-content">Add Visit</a></td>
+                   hx:get="@{__${owner.id}__/pets/__${pet.id}__/visits/new}"
+                   hx-push-url="true"
+                   hx-target="#block-content">Add Visit</a></td>
           </tr>
         </table>
       </td>
