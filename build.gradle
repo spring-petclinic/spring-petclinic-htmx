@@ -17,7 +17,7 @@ repositories {
 
 ext.webjarsFontawesomeVersion = "4.7.0"
 ext.webjarsBootstrapVersion = "5.2.3"
-ext.htmxSpringBootThymeleafVersion = "3.0.0"
+ext.htmxSpringBootThymeleafVersion = "3.2.0"
 ext.htmxOrgVersion = "1.9.5"
 
 dependencies {
