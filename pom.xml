@@ -31,7 +31,7 @@
     <jacoco.version>0.8.8</jacoco.version>
     <nohttp-checkstyle.version>0.0.11</nohttp-checkstyle.version>
     <spring-format.version>0.0.39</spring-format.version>
-    <htmx-spring-boot-thymeleaf.version>3.0.0</htmx-spring-boot-thymeleaf.version>
+    <htmx-spring-boot-thymeleaf.version>3.2.0</htmx-spring-boot-thymeleaf.version>
 
   </properties>
 
